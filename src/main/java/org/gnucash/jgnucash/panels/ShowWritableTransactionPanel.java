@@ -37,8 +37,8 @@ package org.gnucash.jgnucash.panels;
 
 import org.gnucash.viewer.panels.ShowTransactionPanel;
 import org.gnucash.viewer.panels.SingleTransactionTableModel;
-import org.gnucash.read.GnucashAccount;
-import org.gnucash.read.GnucashTransaction;
+import org.gnucash.api.read.GnuCashAccount;
+import org.gnucash.api.read.GnuCashTransaction;
 
 import javax.swing.*;
 import java.awt.*;
@@ -163,7 +163,7 @@ public class ShowWritableTransactionPanel extends ShowTransactionPanel {
 	 * @see #myTransaction
 	 */
 	@Override
-	public void setTransaction(final GnucashTransaction aTransaction) {
+	public void setTransaction(final GnuCashTransaction aTransaction) {
 
 		Object old = getTransaction();
 		if (old == aTransaction) {
@@ -210,7 +210,7 @@ public class ShowWritableTransactionPanel extends ShowTransactionPanel {
 
 		// if editing is possible, install a jcomboBox as an editor for the accounts
 		if (aModel != null && aModel instanceof SingleWritableTransactionTableModel) {
-			GnucashTransaction transaction = aModel.getTransaction();
+			GnuCashTransaction transaction = aModel.getTransaction();
 			if (transaction == null) {
 				throw new IllegalArgumentException("Given model has no transaction");
 			}
@@ -230,8 +230,8 @@ public class ShowWritableTransactionPanel extends ShowTransactionPanel {
 			};
 			accountsCombo.setToolTipText("Account-name"); //make sure a tooltip-manager exists
 			if (transaction != null) {
-				Collection<? extends GnucashAccount> accounts = transaction.getGnucashFile().getAccounts();
-				for (GnucashAccount gnucashAccount : accounts) {
+				Collection<? extends GnuCashAccount> accounts = transaction.getGnuCashFile().getAccounts();
+				for (GnuCashAccount gnucashAccount : accounts) {
 					accountsCombo.addItem(gnucashAccount.getQualifiedName());
 				}
 			}

@@ -33,7 +33,7 @@ package org.gnucash.viewer.actions;
 
 import javax.swing.Action;
 
-import org.gnucash.read.GnucashAccount;
+import org.gnucash.api.read.GnuCashAccount;
 
 /**
  * (c) 2009 by <a href="http://Wolschon.biz>Wolschon Softwaredesign und Beratung</a>.<br/>
@@ -41,7 +41,7 @@ import org.gnucash.read.GnucashAccount;
  * AccountAction<br/>
  * created: 12.03.2009 <br/>
  *<br/><br/>
- * <b>Action that can be executed on a {@link GnucashAccount}</b>
+ * <b>Action that can be executed on a {@link GnuCashAccount}</b>
  * @author  <a href="mailto:Marcus@Wolschon.biz">Marcus Wolschon</a>
  */
 public interface AccountAction extends Action {
@@ -50,5 +50,5 @@ public interface AccountAction extends Action {
      * Set the account this action works on.
      * @param anAccount the account to work.
      */
-    void setAccount(final GnucashAccount anAccount);
+    void setAccount(final GnuCashAccount anAccount);
 }

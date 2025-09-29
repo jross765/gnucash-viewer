@@ -34,7 +34,7 @@ package org.gnucash.jgnucash.plugin;
 import java.io.IOException;
 import java.util.Collection;
 
-import org.gnucash.write.GnucashWritableTransactionSplit;
+import org.gnucash.api.write.GnuCashWritableTransactionSplit;
 
 
 /**
@@ -53,5 +53,5 @@ public interface TransactionMenuAction {
      * @param transactions the selection
      * @throws IOException on comunication-issues
      */
-    void handleSelectedTransactions(final Collection<GnucashWritableTransactionSplit> transactions) throws IOException;
+    void handleSelectedTransactions(final Collection<GnuCashWritableTransactionSplit> transactions) throws IOException;
 }

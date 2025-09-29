@@ -58,15 +58,20 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
-import javax.xml.bind.JAXBException;
 
-import org.gnucash.numbers.FixedPointNumber;
+import org.gnucash.api.read.GnuCashAccount;
+import org.gnucash.api.read.GnuCashFile;
+import org.gnucash.base.basetypes.simple.GCshAcctID;
+import org.gnucash.base.basetypes.simple.InvalidGCshIDException;
 import org.gnucash.viewer.widgets.TransactionSum;
 import org.gnucash.viewer.widgets.TransactionSum.SUMMATIONTYPE;
-import org.gnucash.read.GnucashAccount;
-import org.gnucash.read.GnucashFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.xml.bind.JAXBException;
+import xyz.schnorxoborx.base.beanbase.NoEntryFoundException;
+import xyz.schnorxoborx.base.beanbase.TooManyEntriesFoundException;
+import xyz.schnorxoborx.base.numbers.FixedPointNumber;
 
 /**
  * (c) 2007 by <a href="http://Wolschon.biz>
@@ -153,7 +158,7 @@ public class TaxReportPanel extends JPanel {
 	/**
 	 * @param books The financial data we operate on.
 	 */
-	public TaxReportPanel(final GnucashFile books) {
+	public TaxReportPanel(final GnuCashFile books) {
 		if (books != null) {
 			initializeUI(books);
 		}
@@ -162,7 +167,7 @@ public class TaxReportPanel extends JPanel {
 	/**
 	 * @param books the accounts and transactions we work with.
 	 */
-	private void initializeUI(final GnucashFile books) {
+	private void initializeUI(final GnuCashFile books) {
 		this.setLayout(new BorderLayout());
 		Properties props = new Properties();
 		final InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("TaxReportPanel.xml");
@@ -378,25 +383,27 @@ public class TaxReportPanel extends JPanel {
 	 * @param prop  where to load the config from
 	 * @param index the index into the configs
 	 * @return thw widget created
+	 * @throws TooManyEntriesFoundException 
+	 * @throws NoEntryFoundException 
+	 * @throws InvalidGCshIDException 
 	 */
-	private TransactionSum createSum(final GnucashFile books, final Properties prop, final int index) {
+	private TransactionSum createSum(final GnuCashFile books, final Properties prop, final int index) throws InvalidGCshIDException, NoEntryFoundException, TooManyEntriesFoundException {
 		SUMMATIONTYPE type = SUMMATIONTYPE.getByName(prop.getProperty("sum." + index + ".type"));
 		String name = prop.getProperty("sum." + index + ".name");
-		Set<GnucashAccount> target = getAccountsByProperty(books, prop, "sum." + index + ".target");
-		Set<GnucashAccount> source = getAccountsByProperty(books, prop, "sum." + index + ".source");
+		Set<GnuCashAccount> target = getAccountsByProperty(books, prop, "sum." + index + ".target");
+		Set<GnuCashAccount> source = getAccountsByProperty(books, prop, "sum." + index + ".source");
 		TransactionSum sum = new TransactionSum(books, source, target, type, name, getMinDate(), getMaxDate());
 		mySums.add(sum);
 		return sum;
 	}
 
-	private Set<GnucashAccount> getAccountsByProperty(final GnucashFile aBooks,
-			final Properties props, final String prefix) {
+	private Set<GnuCashAccount> getAccountsByProperty(final GnuCashFile aBooks,
+			final Properties props, final String prefix) throws InvalidGCshIDException, NoEntryFoundException, TooManyEntriesFoundException {
 
-		Set<GnucashAccount> retval = new HashSet<GnucashAccount>();
+		Set<GnuCashAccount> retval = new HashSet<GnuCashAccount>();
 		for (int i = 0; props.containsKey(prefix + "." + i); i++) {
 			String idOrName = props.getProperty(prefix + "." + i);
-			GnucashAccount account = aBooks.getAccountByIDorName(idOrName,
-					idOrName);
+			GnuCashAccount account = aBooks.getAccountByIDorName(new GCshAcctID(idOrName), idOrName);
 			if (account == null) {
 				LOGGER.error("account '" + idOrName + "' given in property '"
 						+ prefix + "." + i + "' not found");
@@ -409,9 +416,9 @@ public class TaxReportPanel extends JPanel {
 
 	/**
 	 * @param aBooks The books to set.
-	 * @see GnucashFile
+	 * @see GnuCashFile
 	 */
-	public void setBooks(final GnucashFile aBooks) {
+	public void setBooks(final GnuCashFile aBooks) {
 		if (mySumsPanel.getParent() == null) {
 			initializeUI(aBooks);
 		}

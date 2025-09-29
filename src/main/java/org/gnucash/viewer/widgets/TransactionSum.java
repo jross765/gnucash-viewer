@@ -45,14 +45,17 @@ import java.util.Set;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.gnucash.currency.ComplexCurrencyTable;
-import org.gnucash.numbers.FixedPointNumber;
-import org.gnucash.read.GnucashAccount;
-import org.gnucash.read.GnucashFile;
-import org.gnucash.read.GnucashTransaction;
-import org.gnucash.read.GnucashTransactionSplit;
+import org.gnucash.api.currency.ComplexPriceTable;
+import org.gnucash.api.read.GnuCashAccount;
+import org.gnucash.api.read.GnuCashFile;
+import org.gnucash.api.read.GnuCashTransaction;
+import org.gnucash.api.read.GnuCashTransactionSplit;
+import org.gnucash.base.basetypes.complex.GCshCmdtyCurrID;
+import org.gnucash.base.basetypes.simple.GCshAcctID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import xyz.schnorxoborx.base.numbers.FixedPointNumber;
 
 /**
  * (c) 2007 by <a href="http://Wolschon.biz>
@@ -86,13 +89,13 @@ public class TransactionSum extends JPanel {
 	/**
 	 * The financial data we operate on.
 	 */
-	private GnucashFile myBooks;
+	private GnuCashFile myBooks;
 
 	/**
 	 * We only operate on transactions that
 	 * contain one of these accounts.
 	 */
-	private Set<GnucashAccount> mySourceAccounts;
+	private Set<GnuCashAccount> mySourceAccounts;
 
 	/**
 	 * We sum all transaction-splits that are to
@@ -100,7 +103,7 @@ public class TransactionSum extends JPanel {
 	 *
 	 * @see #mySourceAccounts
 	 */
-	private Set<GnucashAccount> myTargetAccounts;
+	private Set<GnuCashAccount> myTargetAccounts;
 
 	/**
 	 * We ignore all transactions that are before this date.
@@ -214,9 +217,9 @@ public class TransactionSum extends JPanel {
 	 * @param minDate        We ignore all transactions that are before this date.
 	 * @param maxDate        We ignore all transactions that are after this date.
 	 */
-	public TransactionSum(final GnucashFile books,
-			final Set<GnucashAccount> sourceAccounts,
-			final Set<GnucashAccount> targetAccounts,
+	public TransactionSum(final GnuCashFile books,
+			final Set<GnuCashAccount> sourceAccounts,
+			final Set<GnuCashAccount> targetAccounts,
 			final SUMMATIONTYPE summationType,
 			final String name,
 			final LocalDate minDate,
@@ -247,28 +250,27 @@ public class TransactionSum extends JPanel {
 		}
 		myTransactionsCounted = 0;
 
-		Set<GnucashAccount> sourceAccounts = new HashSet<GnucashAccount>(
+		Set<GnuCashAccount> sourceAccounts = new HashSet<GnuCashAccount>(
 				getSourceAccounts());
-		Set<GnucashAccount> targetAccounts = new HashSet<GnucashAccount>(
+		Set<GnuCashAccount> targetAccounts = new HashSet<GnuCashAccount>(
 				buildTransitiveClosure(getTargetAccounts()));
-		Set<String> targetAccountsIDs = new HashSet<String>();
-		for (GnucashAccount targetAccount : targetAccounts) {
-			targetAccountsIDs.add(targetAccount.getId());
+		Set<GCshAcctID> targetAccountsIDs = new HashSet<GCshAcctID>();
+		for (GnuCashAccount targetAccount : targetAccounts) {
+			targetAccountsIDs.add(targetAccount.getID());
 		}
 
 		////////////////////////////////////
 		// find all applicable transacion
-		Set<GnucashTransactionSplit> transactions = new HashSet<GnucashTransactionSplit>();
+		Set<GnuCashTransactionSplit> transactions = new HashSet<GnuCashTransactionSplit>();
 		FixedPointNumber sum = new FixedPointNumber(0);
 		if (sourceAccounts.size() == 0) {
 			LOGGER.warn("There are no source-accounts given for this transaction-sum");
 		}
-		for (GnucashAccount sourceAccount : sourceAccounts) {
+		for (GnuCashAccount sourceAccount : sourceAccounts) {
 			FixedPointNumber addMe =
 					buildSum(sourceAccount,
 							targetAccountsIDs,
-							sourceAccount.getCurrencyNameSpace(),
-							sourceAccount.getCurrencyID(),
+							sourceAccount.getCmdtyCurrID(),
 							transactions);
 			if (addMe == null) {
 				mySumLabel.setText("   cannot determine sum");
@@ -281,15 +283,15 @@ public class TransactionSum extends JPanel {
 		setValue(sum);
 		////////////////////////////////////
 		// set output
-		Iterator<GnucashAccount> iterator = targetAccounts.iterator();
+		Iterator<GnuCashAccount> iterator = targetAccounts.iterator();
 		if (iterator.hasNext()) {
 			mySumLabel.setText("   " + sum.toString() + ""
-					+ iterator.next().getCurrencyID());
+					+ iterator.next().getCmdtyCurrID());
 		} else {
-			Iterator<GnucashAccount> iterator2 = sourceAccounts.iterator();
+			Iterator<GnuCashAccount> iterator2 = sourceAccounts.iterator();
 			if (iterator2.hasNext()) {
 				mySumLabel.setText("   " + sum.toString() + ""
-						+ iterator2.next().getCurrencyID());
+						+ iterator2.next().getCmdtyCurrID());
 			} else {
 				mySumLabel.setText("   no account");
 			}
@@ -299,22 +301,21 @@ public class TransactionSum extends JPanel {
 	/**
 	 * @param alreadyHandled all transactions we have already visited (if multiple target-accounts are involved)
 	 */
-	private FixedPointNumber buildSum(final GnucashAccount aSourceAccount,
-			final Set<String> aTargetAccountsIDs,
-			final String currencyNameSpace,
-			final String currencyID,
-			final Set<GnucashTransactionSplit> alreadyHandled) {
+	private FixedPointNumber buildSum(final GnuCashAccount aSourceAccount,
+			final Set<GCshAcctID> aTargetAccountsIDs,
+			final GCshCmdtyCurrID currencyID,
+			final Set<GnuCashTransactionSplit> alreadyHandled) {
 
 		FixedPointNumber sum = new FixedPointNumber();
 		for (Object element : aSourceAccount.getChildren()) {
-			GnucashAccount child = (GnucashAccount) element;
-			sum = sum.add(buildSum(child, aTargetAccountsIDs, currencyNameSpace, currencyID, alreadyHandled));
+			GnuCashAccount child = (GnuCashAccount) element;
+			sum = sum.add(buildSum(child, aTargetAccountsIDs, currencyID, alreadyHandled));
 		}
 
-		List<? extends GnucashTransactionSplit> splits
+		List<? extends GnuCashTransactionSplit> splits
 				= aSourceAccount.getTransactionSplits();
-		for (GnucashTransactionSplit split : splits) {
-			GnucashTransaction transaction = split.getTransaction();
+		for (GnuCashTransactionSplit split : splits) {
+			GnuCashTransaction transaction = split.getTransaction();
 			if (getMinDate() != null && transaction.getDatePosted().isBefore( ChronoZonedDateTime.from(getMinDate().atStartOfDay()) )) {
 				continue;
 			}
@@ -334,16 +335,15 @@ public class TransactionSum extends JPanel {
 			} else if (getSummationType().equals(SUMMATIONTYPE.ONLYTO) && !split.getQuantity().isPositive()) {
 				continue;
 			}
-			if (aSourceAccount.getCurrencyNameSpace().equals(currencyNameSpace)
-					&& aSourceAccount.getCurrencyID().equals(currencyID)) {
+			if (aSourceAccount.getCmdtyCurrID().getNameSpace().equals(currencyID.getNameSpace())
+					&& aSourceAccount.getCmdtyCurrID().equals(currencyID)) {
 
 				sum = sum.add(split.getQuantity());
 			} else {
 				FixedPointNumber addMe = new FixedPointNumber(split.getQuantity());
 				// do not convert 0
 				if (!addMe.equals(new FixedPointNumber())) {
-					addMe = convert(aSourceAccount.getCurrencyNameSpace(), aSourceAccount.getCurrencyID(), addMe, currencyNameSpace,
-							currencyID);
+					addMe = convert(aSourceAccount.getCmdtyCurrID(), addMe, currencyID);
 				}
 				if (addMe == null) {
 					return null;
@@ -361,9 +361,9 @@ public class TransactionSum extends JPanel {
 	 * @param aTargetAccountsIDs
 	 * @return
 	 */
-	private boolean hasSplitWithAccount(GnucashTransaction aTransaction, Set<String> aTargetAccountsIDs) {
-		List<? extends GnucashTransactionSplit> splits = aTransaction.getSplits();
-		for (GnucashTransactionSplit split : splits) {
+	private boolean hasSplitWithAccount(GnuCashTransaction aTransaction, Set<GCshAcctID> aTargetAccountsIDs) {
+		List<? extends GnuCashTransactionSplit> splits = aTransaction.getSplits();
+		for (GnuCashTransactionSplit split : splits) {
 			if (aTargetAccountsIDs.contains(split.getAccountID())) {
 				return true;
 			}
@@ -371,12 +371,11 @@ public class TransactionSum extends JPanel {
 		return false;
 	}
 
-	private FixedPointNumber convert(final String aCurrencyNameSpaceFrom,
-			final String aCurrencyIDFrom,
+	private FixedPointNumber convert(
+			final GCshCmdtyCurrID aCurrencyIDFrom,
 			final FixedPointNumber aSum,
-			final String aCurrencyNameSpaceTo,
-			final String aCurrencyIDTo) {
-		ComplexCurrencyTable currencyTable = getBooks().getCurrencyTable();
+			final GCshCmdtyCurrID aCurrencyIDTo) {
+		ComplexPriceTable currencyTable = getBooks().getCurrencyTable();
 
 		if (currencyTable == null) {
 			LOGGER.warn("SimpleAccount.getBalance() - cannot transfer "
@@ -385,14 +384,14 @@ public class TransactionSum extends JPanel {
 		}
 		FixedPointNumber sum = new FixedPointNumber(aSum);
 
-		if (!currencyTable.convertToBaseCurrency(aCurrencyNameSpaceFrom,
+		if (!currencyTable.convertToBaseCurrency(
 				sum,
 				aCurrencyIDFrom)) {
 			Collection<String> currencies = getBooks().getCurrencyTable().getCurrencies(
-					aCurrencyNameSpaceFrom);
+					aCurrencyIDFrom.getNameSpace());
 			LOGGER.warn("SimpleAccount.getBalance() - cannot transfer "
 					+ "from our currency '"
-					+ aCurrencyNameSpaceFrom + "'-'"
+					+ aCurrencyIDFrom.getNameSpace() + "'-'"
 					+ aCurrencyIDFrom
 					+ "' to the base-currency!"
 					+ " \n(we know " + getBooks().getCurrencyTable().getNameSpaces().size()
@@ -402,10 +401,10 @@ public class TransactionSum extends JPanel {
 			return null;
 		}
 
-		if (!currencyTable.convertFromBaseCurrency(aCurrencyNameSpaceTo, sum, aCurrencyIDTo)) {
+		if (!currencyTable.convertFromBaseCurrency(sum, aCurrencyIDTo)) {
 			LOGGER.warn("SimpleAccount.getBalance() - cannot transfer "
 					+ "from base-currenty to given currency '"
-					+ aCurrencyNameSpaceTo
+					+ aCurrencyIDTo.getNameSpace()
 					+ "-"
 					+ aCurrencyIDTo
 					+ "'!");
@@ -421,18 +420,18 @@ public class TransactionSum extends JPanel {
 	 * @param accounts the account-list to walk
 	 * @return a set of all given accounts and all their child-accounts.
 	 */
-	private Collection<? extends GnucashAccount> buildTransitiveClosure(
-			final Collection<? extends GnucashAccount> accounts) {
+	private Collection<? extends GnuCashAccount> buildTransitiveClosure(
+			final Collection<? extends GnuCashAccount> accounts) {
 
 		if (accounts.size() == 0) {
 			return accounts;
 		}
 
-		Set<GnucashAccount> retval = new HashSet<GnucashAccount>(accounts);
+		Set<GnuCashAccount> retval = new HashSet<GnuCashAccount>(accounts);
 
 		// TODO implement TransactionSum.buildTransitiveClosure
-		for (GnucashAccount account : accounts) {
-			Collection<? extends GnucashAccount> allChildren
+		for (GnuCashAccount account : accounts) {
+			Collection<? extends GnuCashAccount> allChildren
 					= buildTransitiveClosure(account.getChildren());
 			retval.addAll(allChildren);
 		}
@@ -538,7 +537,7 @@ public class TransactionSum extends JPanel {
 	 * @return Returns the books.
 	 * @see #myBooks
 	 */
-	public GnucashFile getBooks() {
+	public GnuCashFile getBooks() {
 		return myBooks;
 	}
 
@@ -546,7 +545,7 @@ public class TransactionSum extends JPanel {
 	 * @param aBooks The books to set.
 	 * @see #myBooks
 	 */
-	public void setBooks(final GnucashFile aBooks) {
+	public void setBooks(final GnuCashFile aBooks) {
 		if (aBooks == null) {
 			throw new IllegalArgumentException("null 'aBooks' given!");
 		}
@@ -568,7 +567,7 @@ public class TransactionSum extends JPanel {
 	 * @return Returns the sourceAccounts.
 	 * @see #mySourceAccounts
 	 */
-	public Set<GnucashAccount> getSourceAccounts() {
+	public Set<GnuCashAccount> getSourceAccounts() {
 		return mySourceAccounts;
 	}
 
@@ -576,7 +575,7 @@ public class TransactionSum extends JPanel {
 	 * @param aSourceAccounts The sourceAccounts to set.
 	 * @see #mySourceAccounts
 	 */
-	public void setSourceAccounts(final Set<GnucashAccount> aSourceAccounts) {
+	public void setSourceAccounts(final Set<GnuCashAccount> aSourceAccounts) {
 		if (aSourceAccounts == null) {
 			throw new IllegalArgumentException("null 'aSourceAccounts' given!");
 		}
@@ -630,7 +629,7 @@ public class TransactionSum extends JPanel {
 	 * @return Returns the targetAccounts.
 	 * @see #myTargetAccounts
 	 */
-	public Set<GnucashAccount> getTargetAccounts() {
+	public Set<GnuCashAccount> getTargetAccounts() {
 		return myTargetAccounts;
 	}
 
@@ -638,7 +637,7 @@ public class TransactionSum extends JPanel {
 	 * @param aTargetAccounts The targetAccounts to set.
 	 * @see #myTargetAccounts
 	 */
-	public void setTargetAccounts(final Set<GnucashAccount> aTargetAccounts) {
+	public void setTargetAccounts(final Set<GnuCashAccount> aTargetAccounts) {
 		if (aTargetAccounts == null) {
 			throw new IllegalArgumentException("null 'aTargetAccounts' given!");
 		}

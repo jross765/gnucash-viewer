@@ -33,7 +33,7 @@ public class JPFEditorMain extends ApplicationPlugin {
 	 */
 	@Override
 	protected Application initApplication(final ExtendedProperties arg0, final String[] args) {
-		JGnucash ste = new JGnucash(getManager(), getDescriptor());
+		JGnuCash ste = new JGnuCash(getManager(), getDescriptor());
 		ste.setVisible(true);
 		if (args.length > 0) {
 			ste.loadFile(new File(args[0]));

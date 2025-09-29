@@ -48,9 +48,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import org.gnucash.read.GnucashAccount;
-import org.gnucash.read.GnucashTransaction;
-import org.gnucash.read.GnucashTransactionSplit;
+import org.gnucash.api.read.GnuCashAccount;
+import org.gnucash.api.read.GnuCashTransaction;
+import org.gnucash.api.read.GnuCashTransactionSplit;
 
 import org.gnucash.viewer.panels.TransactionsPanel;
 
@@ -69,7 +69,7 @@ public class OpenAccountInNewTab implements AccountAction,
     /**
      * The account we open.
      */
-    private GnucashAccount myAccount;
+    private GnuCashAccount myAccount;
 
     /**
      * @see #getValue(String)
@@ -84,7 +84,7 @@ public class OpenAccountInNewTab implements AccountAction,
     /**
      * Optional the transaction to highlight.
      */
-    private GnucashTransaction myTransaction;
+    private GnuCashTransaction myTransaction;
 
     /**
      * The TabbedPane to open in.
@@ -105,7 +105,7 @@ public class OpenAccountInNewTab implements AccountAction,
      * @param aSplit the split to show the account of.
      * @param aTabbedPane The TabbedPane to open in.
      */
-    public OpenAccountInNewTab(final JTabbedPane aTabbedPane, final GnucashTransactionSplit aSplit) {
+    public OpenAccountInNewTab(final JTabbedPane aTabbedPane, final GnuCashTransactionSplit aSplit) {
         this(aTabbedPane);
         setSplit(aSplit);
     }
@@ -113,7 +113,7 @@ public class OpenAccountInNewTab implements AccountAction,
      * @param anAccount the account to show.
      * @param aTabbedPane The TabbedPane to open in.
      */
-    public OpenAccountInNewTab(final JTabbedPane aTabbedPane, final GnucashAccount anAccount) {
+    public OpenAccountInNewTab(final JTabbedPane aTabbedPane, final GnuCashAccount anAccount) {
         this(aTabbedPane);
         setAccount(anAccount);
     }
@@ -121,7 +121,7 @@ public class OpenAccountInNewTab implements AccountAction,
      * {@inheritDoc}
      */
     @Override
-    public void setAccount(final GnucashAccount anAccount) {
+    public void setAccount(final GnuCashAccount anAccount) {
         myAccount = anAccount;
         myTransaction = null;
     }
@@ -129,7 +129,7 @@ public class OpenAccountInNewTab implements AccountAction,
      * {@inheritDoc}
      */
     @Override
-    public void setSplit(final GnucashTransactionSplit aSplit) {
+    public void setSplit(final GnuCashTransactionSplit aSplit) {
         myAccount = aSplit.getAccount();
         myTransaction = aSplit.getTransaction();
     }
@@ -222,7 +222,7 @@ public class OpenAccountInNewTab implements AccountAction,
     /**
      * @return the account
      */
-    protected GnucashAccount getAccount() {
+    protected GnuCashAccount getAccount() {
         return myAccount;
     }
 

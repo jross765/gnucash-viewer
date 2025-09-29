@@ -42,8 +42,8 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-import org.gnucash.write.GnucashWritableAccount;
-import org.gnucash.write.GnucashWritableFile;
+import org.gnucash.api.write.GnuCashWritableAccount;
+import org.gnucash.api.write.GnuCashWritableFile;
 
 /**
  * (c) 2009 by <a href="http://Wolschon.biz>Wolschon Softwaredesign und Beratung</a>.<br/>
@@ -73,9 +73,9 @@ public final class PluginConfigHelper {
 	 * @return an account or null
 	 */
 	@SuppressWarnings("unchecked")
-	public static GnucashWritableAccount getAccountWithKey(final GnucashWritableFile aModel, final String aKey) {
-		Collection<? extends GnucashWritableAccount> accounts = aModel.getWritableAccounts();
-		for (GnucashWritableAccount gnucashAccount : accounts) {
+	public static GnuCashWritableAccount getAccountWithKey(final GnuCashWritableFile aModel, final String aKey) {
+		Collection<? extends GnuCashWritableAccount> accounts = aModel.getWritableAccounts();
+		for (GnuCashWritableAccount gnucashAccount : accounts) {
 			if (gnucashAccount.getUserDefinedAttribute(aKey) != null) {
 				return gnucashAccount;
 			}
@@ -92,10 +92,10 @@ public final class PluginConfigHelper {
 	 * @return an account or null
 	 */
 	@SuppressWarnings("unchecked")
-	public static Collection<GnucashWritableAccount> getAllAccountsWithKey(final GnucashWritableFile aModel, final String aKey) {
-		Collection<GnucashWritableAccount> retval = new HashSet<GnucashWritableAccount>();
-		Collection<? extends GnucashWritableAccount> accounts = aModel.getWritableAccounts();
-		for (GnucashWritableAccount gnucashAccount : accounts) {
+	public static Collection<GnuCashWritableAccount> getAllAccountsWithKey(final GnuCashWritableFile aModel, final String aKey) {
+		Collection<GnuCashWritableAccount> retval = new HashSet<GnuCashWritableAccount>();
+		Collection<? extends GnuCashWritableAccount> accounts = aModel.getWritableAccounts();
+		for (GnuCashWritableAccount gnucashAccount : accounts) {
 			if (gnucashAccount.getUserDefinedAttribute(aKey) != null) {
 				retval.add(gnucashAccount);
 			}
@@ -113,14 +113,14 @@ public final class PluginConfigHelper {
 	 * @param aDefaultValue the value to apply if an account needed to be selected
 	 * @param aQuestion     the translated question to ask the user when selecting an account.
 	 * @return the account
-	 * @see #getAccountWithKey(GnucashWritableFile, String)
+	 * @see #getAccountWithKey(GnuCashWritableFile, String)
 	 */
 	@SuppressWarnings("unchecked")
-	public static GnucashWritableAccount getOrConfigureAccountWithKey(final GnucashWritableFile aModel,
+	public static GnuCashWritableAccount getOrConfigureAccountWithKey(final GnuCashWritableFile aModel,
 			final String aKey,
 			final String aDefaultValue,
 			final String aQuestion) {
-		GnucashWritableAccount retval = getAccountWithKey(aModel, aKey);
+		GnuCashWritableAccount retval = getAccountWithKey(aModel, aKey);
 		if (retval != null) {
 			return retval;
 		}
@@ -147,7 +147,7 @@ public final class PluginConfigHelper {
 		selectAccountDialog.setModal(true);
 		selectAccountDialog.pack();
 		selectAccountDialog.setVisible(true);
-		retval = (GnucashWritableAccount) folderListBox.getSelectedValue();
+		retval = (GnuCashWritableAccount) folderListBox.getSelectedValue();
 		retval.setUserDefinedAttribute(aKey, aDefaultValue);
 		return retval;
 	}
@@ -161,10 +161,10 @@ public final class PluginConfigHelper {
 	 * @param aDefaultValue the default value to present to the user
 	 * @param aQuestion     the translated question to ask the user when selecting an account.
 	 * @return the entered value (not empty)
-	 * @see #getOrConfigureStringWithKey(GnucashWritableAccount, String, String, String)
+	 * @see #getOrConfigureStringWithKey(GnuCashWritableAccount, String, String, String)
 	 */
 	@SuppressWarnings("unchecked")
-	public static String getOrConfigureStringWithKey(final GnucashWritableAccount aRootAccount,
+	public static String getOrConfigureStringWithKey(final GnuCashWritableAccount aRootAccount,
 			final String aKey,
 			final String aDefaultValue,
 			final String aQuestion) {

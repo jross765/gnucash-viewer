@@ -30,8 +30,8 @@
  */
 package org.gnucash.jgnucash.plugin;
 
-import org.gnucash.write.GnucashWritableAccount;
-import org.gnucash.write.GnucashWritableFile;
+import org.gnucash.api.write.GnuCashWritableAccount;
+import org.gnucash.api.write.GnuCashWritableFile;
 
 /**
  * created: 29.11.2008 <br/>
@@ -61,6 +61,6 @@ public interface ToolPlugin {
      * @param currentAccount the currently selected account (may be null)
      * @return (optional) a message to be displayed after success (or null/empty message)
      */
-    String runTool(final GnucashWritableFile writableModel, final GnucashWritableAccount currentAccount) throws Exception;
+    String runTool(final GnuCashWritableFile writableModel, final GnuCashWritableAccount currentAccount) throws Exception;
 
 }

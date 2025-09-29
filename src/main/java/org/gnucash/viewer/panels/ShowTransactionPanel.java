@@ -30,10 +30,10 @@ import javax.swing.SwingUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.gnucash.read.GnucashTransaction;
-import org.gnucash.read.GnucashTransactionSplit;
+import org.gnucash.api.read.GnuCashTransaction;
+import org.gnucash.api.read.GnuCashTransactionSplit;
 import org.gnucash.viewer.actions.TransactionSplitAction;
-import org.gnucash.viewer.models.GnucashTransactionsSplitsTableModel;
+import org.gnucash.viewer.models.GnuCashTransactionsSplitsTableModel;
 
 /**
  * (c) 2006 by Wolschon Softwaredesign und Beratung.<br/>
@@ -61,7 +61,7 @@ public class ShowTransactionPanel extends JPanel {
 	/**
 	 * The transaction we are showing.
 	 */
-	private GnucashTransaction myTransaction = null;
+	private GnuCashTransaction myTransaction = null;
 
 
 	/**
@@ -73,7 +73,7 @@ public class ShowTransactionPanel extends JPanel {
 	/**
 	 * @param aTransaction The transaction we are showing.
 	 */
-	public ShowTransactionPanel(final GnucashTransaction aTransaction) {
+	public ShowTransactionPanel(final GnuCashTransaction aTransaction) {
 		super();
 		myTransaction = aTransaction;
 
@@ -95,7 +95,7 @@ public class ShowTransactionPanel extends JPanel {
 	 */
 	protected JPopupMenu getCellPopupMenu(final int row) {
 		JPopupMenu menu = new JPopupMenu();
-		final GnucashTransactionSplit split = model.getTransactionSplit(row - 1);
+		final GnuCashTransactionSplit split = model.getTransactionSplit(row - 1);
 		if (split != null) {
 			Collection<TransactionSplitAction> splitActions = getSplitActions();
 			for (TransactionSplitAction splitAction2 : splitActions) {
@@ -164,7 +164,7 @@ public class ShowTransactionPanel extends JPanel {
 	 * @return Returns the transaction.
 	 * @see #myTransaction
 	 */
-	public GnucashTransaction getTransaction() {
+	public GnuCashTransaction getTransaction() {
 		return myTransaction;
 	}
 
@@ -172,7 +172,7 @@ public class ShowTransactionPanel extends JPanel {
 	 * @param aTransaction The transaction to set.
 	 * @see #myTransaction
 	 */
-	public void setTransaction(final GnucashTransaction aTransaction) {
+	public void setTransaction(final GnuCashTransaction aTransaction) {
 
 		Object old = myTransaction;
 		if (old == aTransaction) {
@@ -197,7 +197,7 @@ public class ShowTransactionPanel extends JPanel {
 	/**
 	 * The model of our ${@link #transactionTable}.
 	 */
-	private GnucashTransactionsSplitsTableModel model;
+	private GnuCashTransactionsSplitsTableModel model;
 
 	/**
 	 * The table showing the splits.
@@ -214,7 +214,7 @@ public class ShowTransactionPanel extends JPanel {
 	 * @return Returns the model.
 	 * @see #model
 	 */
-	public GnucashTransactionsSplitsTableModel getModel() {
+	public GnuCashTransactionsSplitsTableModel getModel() {
 		return model;
 	}
 

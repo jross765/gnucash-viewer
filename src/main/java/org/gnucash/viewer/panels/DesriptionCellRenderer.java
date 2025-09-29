@@ -47,8 +47,8 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
-import org.gnucash.read.GnucashTransactionSplit;
-import org.gnucash.viewer.models.GnucashTransactionsSplitsTableModel;
+import org.gnucash.api.read.GnuCashTransactionSplit;
+import org.gnucash.viewer.models.GnuCashTransactionsSplitsTableModel;
 
 
 /**
@@ -169,14 +169,14 @@ public class DesriptionCellRenderer implements TableCellRenderer {
 
 			// mark unbalanced transactions in red.
 			TableModel model = table.getModel();
-			if (model instanceof GnucashTransactionsSplitsTableModel) {
-				GnucashTransactionsSplitsTableModel tmodel = (GnucashTransactionsSplitsTableModel) model;
-				GnucashTransactionSplit split = tmodel.getTransactionSplit(row);
+			if (model instanceof GnuCashTransactionsSplitsTableModel) {
+				GnuCashTransactionsSplitsTableModel tmodel = (GnuCashTransactionsSplitsTableModel) model;
+				GnuCashTransactionSplit split = tmodel.getTransactionSplit(row);
 				if (split != null) {
 					if (split.getTransaction() != null) {
 						try {
-							List<? extends GnucashTransactionSplit> splits = split.getTransaction().getSplits();
-							for (GnucashTransactionSplit gnucashTransactionSplit : splits) {
+							List<? extends GnuCashTransactionSplit> splits = split.getTransaction().getSplits();
+							for (GnuCashTransactionSplit gnucashTransactionSplit : splits) {
 								if (gnucashTransactionSplit != null) {
 									markTokens(renderer, gnucashTransactionSplit.getDescription());
 								}
@@ -208,7 +208,7 @@ public class DesriptionCellRenderer implements TableCellRenderer {
 	 * @param renderer the renderer to modify it's style
 	 * @param split the transaction we display
 	 */
-	private void markUnbalanced(final JLabel renderer, final GnucashTransactionSplit split) {
+	private void markUnbalanced(final JLabel renderer, final GnuCashTransactionSplit split) {
 		try {
 			if (split.getTransaction() == null || !split.getTransaction().isBalanced()) {
 				renderer.setForeground(Color.red);

@@ -1,5 +1,5 @@
 /**
- * GnucashTransactionsSplitsTableModel.java
+ * GnuCashTransactionsSplitsTableModel.java
  * created: 21.10.2006 17:38:52
  */
 package org.gnucash.viewer.models;
@@ -8,20 +8,20 @@ package org.gnucash.viewer.models;
 
 import javax.swing.table.TableModel;
 
-import org.gnucash.read.GnucashTransactionSplit;
+import org.gnucash.api.read.GnuCashTransactionSplit;
 
 
 /**
  * (c) 2006 by Wolschon Softwaredesign und Beratung.<br/>
  * Project: gnucashReader<br/>
- * GnucashTransactionsSplitsTableModel.java<br/>
+ * GnuCashTransactionsSplitsTableModel.java<br/>
  * created: 21.10.2006 17:38:52 <br/>
  *<br/><br/>
  * <b>TableModels implementing this interface contain a list of transactions.
  * They may be all transactions of an account, a search-result or sth. similar.</b>
  * @author <a href="Marcus@Wolschon.biz">Marcus Wolschon</a>
  */
-public interface GnucashTransactionsSplitsTableModel extends TableModel {
+public interface GnuCashTransactionsSplitsTableModel extends TableModel {
 
     /**
      * Get the number of transactons.
@@ -35,7 +35,7 @@ public interface GnucashTransactionsSplitsTableModel extends TableModel {
      * @param rowIndex the split to get
      * @return the split
      */
-    GnucashTransactionSplit getTransactionSplit(final int rowIndex);
+    GnuCashTransactionSplit getTransactionSplit(final int rowIndex);
 
 
 }

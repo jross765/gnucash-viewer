@@ -32,7 +32,7 @@ package org.gnucash.jgnucash.plugin;
 
 import java.io.IOException;
 
-import org.gnucash.write.GnucashWritableFile;
+import org.gnucash.api.write.GnuCashWritableFile;
 
 /**
  * created: 28.09.2008 <br/>
@@ -62,19 +62,19 @@ public interface DataSourcePlugin {
      * @return the loaded file or null
      * @throws IOException on IO-issues
      */
-    GnucashWritableFile loadFile() throws IOException;
+    GnuCashWritableFile loadFile() throws IOException;
 
     /**
      * Write to where this file was loaded from.
      * @param file the file to write
      * @throws IOException on IO-issues
      */
-    void write(GnucashWritableFile file) throws IOException;
+    void write(GnuCashWritableFile file) throws IOException;
 
     /**
      * Let the user choose a location to write to.
      * @param file the file to write
      * @throws IOException on IO-issues
      */
-    void writeTo(GnucashWritableFile file) throws IOException;
+    void writeTo(GnuCashWritableFile file) throws IOException;
 }

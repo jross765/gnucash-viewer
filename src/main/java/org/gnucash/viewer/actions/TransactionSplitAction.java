@@ -33,7 +33,7 @@ package org.gnucash.viewer.actions;
 
 import javax.swing.Action;
 
-import org.gnucash.read.GnucashTransactionSplit;
+import org.gnucash.api.read.GnuCashTransactionSplit;
 
 /**
  * (c) 2009 by <a href="http://Wolschon.biz>Wolschon Softwaredesign und Beratung</a>.<br/>
@@ -41,7 +41,7 @@ import org.gnucash.read.GnucashTransactionSplit;
  * TransactionSplitAction<br/>
  * created: 12.03.2009 <br/>
  *<br/><br/>
- * <b>Action that can be executed on a {@link GnucashTransactionSplit}</b>
+ * <b>Action that can be executed on a {@link GnuCashTransactionSplit}</b>
  * @author  <a href="mailto:Marcus@Wolschon.biz">Marcus Wolschon</a>
  */
 public interface TransactionSplitAction extends Action {
@@ -50,5 +50,5 @@ public interface TransactionSplitAction extends Action {
      * Set the split this action works on.
      * @param aSplit the split to work.
      */
-    void setSplit(final GnucashTransactionSplit aSplit);
+    void setSplit(final GnuCashTransactionSplit aSplit);
 }

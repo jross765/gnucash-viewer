@@ -51,14 +51,14 @@ import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
-import org.gnucash.read.GnucashAccount;
-import org.gnucash.read.GnucashFile;
-import org.gnucash.read.impl.GnucashFileImpl;
+import org.gnucash.api.read.GnuCashAccount;
+import org.gnucash.api.read.GnuCashFile;
+import org.gnucash.api.read.impl.GnuCashFileImpl;
 import org.gnucash.viewer.actions.AccountAction;
 import org.gnucash.viewer.actions.OpenAccountInNewTab;
 import org.gnucash.viewer.actions.OpenAccountInNewWindow;
 import org.gnucash.viewer.actions.TransactionSplitAction;
-import org.gnucash.viewer.models.GnucashAccountsTreeModel;
+import org.gnucash.viewer.models.GnuCashAccountsTreeModel;
 import org.gnucash.viewer.panels.TaxReportPanel;
 import org.gnucash.viewer.panels.TransactionsPanel;
 import org.slf4j.Logger;
@@ -71,7 +71,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:Marcus@Wolschon.biz">Marcus Wolschon</a>
  */
 @SuppressWarnings("serial")
-public class JGnucashViewer extends JFrame {
+public class JGnuCashViewer extends JFrame {
 
 	/**
 	 * (c) 2010 by <a href="http://Wolschon.biz>Wolschon Softwaredesign und Beratung</a>.<br/>
@@ -79,7 +79,7 @@ public class JGnucashViewer extends JFrame {
 	 * AccountActionWrapper<br/>
 	 * created: 17.11.2010 <br/>
 	 * <br/><br/>
-	 * <b>Wrapper for an {@link AccountAction} that knows about {@link JGnucashViewer#getSelectedAccount()}.</b>
+	 * <b>Wrapper for an {@link AccountAction} that knows about {@link JGnuCashViewer#getSelectedAccount()}.</b>
 	 *
 	 * @author <a href="mailto:Marcus@Wolschon.biz">marcus</a>
 	 */
@@ -154,9 +154,9 @@ public class JGnucashViewer extends JFrame {
 	/**
 	 * Our logger for debug- and error-output.
 	 */
-	private static final Logger LOGGER = LoggerFactory.getLogger(JGnucashViewer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JGnuCashViewer.class);
 
-	private GnucashFile myModel;
+	private GnuCashFile myModel;
 
 	private javax.swing.JPanel jContentPane = null;
 
@@ -167,7 +167,7 @@ public class JGnucashViewer extends JFrame {
 	/**
 	 * The currently selected account.
 	 */
-	private GnucashAccount selectedAccount = null;
+	private GnuCashAccount selectedAccount = null;
 
 	/**
 	 * The title of the frame.
@@ -224,7 +224,7 @@ public class JGnucashViewer extends JFrame {
 	 * @param args empty or contains a gnucash-file-name as a first param.
 	 */
 	public static void main(final String[] args) {
-		JGnucashViewer ste = new JGnucashViewer();
+		JGnuCashViewer ste = new JGnuCashViewer();
 		installNimbusLaF();
 		ste.initializeGUI();
 		ste.setVisible(true);
@@ -247,7 +247,7 @@ public class JGnucashViewer extends JFrame {
 	 * This method initializes
 	 * the GnucashViewer.
 	 */
-	public JGnucashViewer() {
+	public JGnuCashViewer() {
 		super();
 	}
 
@@ -277,7 +277,7 @@ public class JGnucashViewer extends JFrame {
 			if (getModel() == null) {
 				accountsTree.setModel(new DefaultTreeModel(null));
 			} else {
-				accountsTree.setModel(new GnucashAccountsTreeModel(getModel()));
+				accountsTree.setModel(new GnuCashAccountsTreeModel(getModel()));
 			}
 			accountsTree.addMouseListener(new MouseAdapter() {
 
@@ -309,8 +309,8 @@ public class JGnucashViewer extends JFrame {
 					if (path == null) {
 						setSelectedAccount(null);
 					} else {
-						GnucashAccountsTreeModel.GnucashAccountTreeEntry entry
-								= (GnucashAccountsTreeModel.GnucashAccountTreeEntry)
+						GnuCashAccountsTreeModel.GnuCashAccountTreeEntry entry
+								= (GnuCashAccountsTreeModel.GnuCashAccountTreeEntry)
 								path.getLastPathComponent();
 						setSelectedAccount(entry.getAccount());
 					}
@@ -374,7 +374,7 @@ public class JGnucashViewer extends JFrame {
 	 *
 	 * @return the selectedAccount
 	 */
-	public GnucashAccount getSelectedAccount() {
+	public GnuCashAccount getSelectedAccount() {
 		return selectedAccount;
 	}
 
@@ -383,12 +383,12 @@ public class JGnucashViewer extends JFrame {
 	 *
 	 * @param aSelectedAccount the selectedAccount to set (may be null)
 	 */
-	public void setSelectedAccount(final GnucashAccount aSelectedAccount) {
+	public void setSelectedAccount(final GnuCashAccount aSelectedAccount) {
 		selectedAccount = aSelectedAccount;
 
 		getTransactionsPanel().setAccount(selectedAccount);
 		if (selectedAccount != null) {
-			LOGGER.debug("accoun " + selectedAccount.getId()
+			LOGGER.debug("account " + selectedAccount.getID()
 					+ " = " + selectedAccount.getQualifiedName()
 					+ " selected");
 		}
@@ -438,7 +438,7 @@ public class JGnucashViewer extends JFrame {
 			myFileLoadMenuItem.setMnemonic('a');
 			myFileLoadMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
-					JGnucashViewer.this.loadFile();
+					JGnuCashViewer.this.loadFile();
 				}
 			});
 		}
@@ -547,14 +547,14 @@ public class JGnucashViewer extends JFrame {
 	}
 
 	/**
-	 * Given a file, create a GnucashFile for it.
+	 * Given a file, create a GnuCashFile for it.
 	 *
 	 * @param f the file
-	 * @return the GnucashFile
+	 * @return the GnuCashFile
 	 * @throws IOException   if the file cannot be loaded from disk
 	 */
-	protected GnucashFile createModelFromFile(final File f) throws IOException {
-		return new GnucashFileImpl(f);
+	protected GnuCashFile createModelFromFile(final File f) throws IOException {
+		return new GnuCashFileImpl(f);
 	}
 
 	/**
@@ -568,7 +568,7 @@ public class JGnucashViewer extends JFrame {
 				return false;
 			}
 			if (!f.exists()) {
-				JOptionPane.showMessageDialog(JGnucashViewer.this, "File does not exist", "missing file", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(JGnuCashViewer.this, "File does not exist", "missing file", JOptionPane.ERROR_MESSAGE);
 				return false;
 			}
 			return loadFile(f);
@@ -606,21 +606,21 @@ public class JGnucashViewer extends JFrame {
 	/**
 	 * @return the file we operate on.
 	 */
-	protected GnucashFile getModel() {
+	protected GnuCashFile getModel() {
 		return myModel;
 	}
 
 	/**
 	 * @param model the file we operate on.
 	 */
-	public void setModel(final GnucashFile model) {
+	public void setModel(final GnuCashFile model) {
 		if (model == null) {
 			throw new IllegalArgumentException(
 					"null not allowed for field this.model");
 		}
 		myModel = model;
 		getAccountsTree().setModel(
-				new GnucashAccountsTreeModel(myModel));
+				new GnuCashAccountsTreeModel(myModel));
 		try {
 			getTaxReportPanel().setBooks(myModel);
 		}
@@ -693,7 +693,7 @@ public class JGnucashViewer extends JFrame {
 	/**
 	 * @param account the account to show
 	 */
-	public void openAccountInTab(final GnucashAccount account) {
+	public void openAccountInTab(final GnuCashAccount account) {
 		final TransactionsPanel newTransactionsPanel = new TransactionsPanel();
 		newTransactionsPanel.setAccount(account);
 		String tabName = account.getName();

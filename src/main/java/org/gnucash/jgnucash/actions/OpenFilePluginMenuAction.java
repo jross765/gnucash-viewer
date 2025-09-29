@@ -19,8 +19,8 @@
  */
 package org.gnucash.jgnucash.actions;
 
-import org.gnucash.write.GnucashWritableFile;
-import org.gnucash.jgnucash.JGnucash;
+import org.gnucash.api.write.GnuCashWritableFile;
+import org.gnucash.jgnucash.JGnuCash;
 import org.gnucash.jgnucash.plugin.DataSourcePlugin;
 import org.java.plugin.registry.Extension;
 import org.slf4j.Logger;
@@ -44,13 +44,13 @@ public final class OpenFilePluginMenuAction implements ActionListener {
      * Our JGnucash.java.
      * @see OpenFilePluginMenuAction
      */
-    private final JGnucash myJGnucashEditor;
+    private final JGnuCash myJGnucashEditor;
     /**
      * @param aPlugin The import-plugin.
      * @param aPluginName The name of the plugin
      * @param aGnucash TODO
      */
-    public OpenFilePluginMenuAction(final JGnucash aGnucash, final Extension aPlugin, final String aPluginName) {
+    public OpenFilePluginMenuAction(final JGnuCash aGnucash, final Extension aPlugin, final String aPluginName) {
         super();
         myJGnucashEditor = aGnucash;
         ext = aPlugin;
@@ -91,7 +91,7 @@ public final class OpenFilePluginMenuAction implements ActionListener {
             DataSourcePlugin importer = (DataSourcePlugin) o;
             try {
                 myJGnucashEditor.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                GnucashWritableFile loadedFile = importer.loadFile();
+                GnuCashWritableFile loadedFile = importer.loadFile();
                 if (loadedFile != null) {
                     myJGnucashEditor.setWritableModel(loadedFile);
                 }

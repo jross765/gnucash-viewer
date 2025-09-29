@@ -27,9 +27,9 @@ import javax.swing.JOptionPane;
 
 import org.java.plugin.registry.Extension;
 
-import org.gnucash.write.GnucashWritableAccount;
-import org.gnucash.write.GnucashWritableFile;
-import org.gnucash.jgnucash.JGnucash;
+import org.gnucash.api.write.GnuCashWritableAccount;
+import org.gnucash.api.write.GnuCashWritableFile;
+import org.gnucash.jgnucash.JGnuCash;
 import org.gnucash.jgnucash.plugin.ImporterPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,13 +47,13 @@ public final class ImportPluginMenuAction implements ActionListener {
      * Our JGnucash.java.
      * @see ImportPluginMenuAction
      */
-    private final JGnucash myJGnucashEditor;
+    private final JGnuCash myJGnucashEditor;
     /**
      * @param aPlugin The import-plugin.
      * @param aPluginName The name of the plugin
      * @param aGnucash TODO
      */
-    public ImportPluginMenuAction(final JGnucash aGnucash, final Extension aPlugin, final String aPluginName) {
+    public ImportPluginMenuAction(final JGnuCash aGnucash, final Extension aPlugin, final String aPluginName) {
         super();
         myJGnucashEditor = aGnucash;
         ext = aPlugin;
@@ -72,7 +72,7 @@ public final class ImportPluginMenuAction implements ActionListener {
     @Override
     public void actionPerformed(final ActionEvent e) {
         try {
-            GnucashWritableFile wModel = myJGnucashEditor.getWritableModel();
+            GnuCashWritableFile wModel = myJGnucashEditor.getWritableModel();
             if (wModel == null) {
                 JOptionPane.showMessageDialog(myJGnucashEditor, "No open file.",
                         "Please open a gnucash-file first!",
@@ -101,7 +101,7 @@ public final class ImportPluginMenuAction implements ActionListener {
             ImporterPlugin importer = (ImporterPlugin) o;
             try {
                 myJGnucashEditor.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                GnucashWritableAccount selectedAccount = (GnucashWritableAccount) myJGnucashEditor.getSelectedAccount();
+                GnuCashWritableAccount selectedAccount = (GnuCashWritableAccount) myJGnucashEditor.getSelectedAccount();
                 String message = importer.runImport(wModel, selectedAccount);
                 if (message != null && message.length() > 0) {
                     JOptionPane.showMessageDialog(myJGnucashEditor, "Import OK",

@@ -25,7 +25,7 @@ import java.util.Set;
 import javax.swing.JOptionPane;
 import javax.swing.event.TableModelListener;
 
-import org.gnucash.read.GnucashTransactionSplit;
+import org.gnucash.api.read.GnuCashTransactionSplit;
 
 /**
  * created: 15.05.2005 <br/>
@@ -34,12 +34,12 @@ import org.gnucash.read.GnucashTransactionSplit;
  * @author <a href="mailto:Marcus@Wolschon.biz">Marcus Wolschon</a>
  *
  */
-public class GnucashSimpleTransactionSplitsTableModel implements GnucashTransactionsSplitsTableModel {
+public class GnuCashSimpleTransactionSplitsTableModel implements GnuCashTransactionsSplitsTableModel {
 
     /**
      * The account who's transactions we are showing.
      */
-    private final List<? extends GnucashTransactionSplit> mySplits;
+    private final List<? extends GnuCashTransactionSplit> mySplits;
 
 
     /**
@@ -48,9 +48,9 @@ public class GnucashSimpleTransactionSplitsTableModel implements GnucashTransact
     private final String[] defaultColumnNames = new String[] {"date", "transaction", "description", "+", "-"};
 
     /**
-     * @param java.util.List<? extends GnucashTransactionSplit> the splits to display.
+     * @param java.util.List<? extends GnuCashTransactionSplit> the splits to display.
      */
-    public GnucashSimpleTransactionSplitsTableModel(final List<? extends GnucashTransactionSplit> aList) {
+    public GnuCashSimpleTransactionSplitsTableModel(final List<? extends GnuCashTransactionSplit> aList) {
         super();
         mySplits = aList;
     }
@@ -59,7 +59,7 @@ public class GnucashSimpleTransactionSplitsTableModel implements GnucashTransact
      * the Table will be empty.
      *
      */
-    public GnucashSimpleTransactionSplitsTableModel() {
+    public GnuCashSimpleTransactionSplitsTableModel() {
         super();
         mySplits = null;
     }
@@ -76,7 +76,7 @@ public class GnucashSimpleTransactionSplitsTableModel implements GnucashTransact
      */
     public int getRowCount() {
 
-        List<? extends GnucashTransactionSplit> transactionSplits = getTransactionSplits();
+        List<? extends GnuCashTransactionSplit> transactionSplits = getTransactionSplits();
         if (transactionSplits == null) {
             return 0;
         }
@@ -86,9 +86,9 @@ public class GnucashSimpleTransactionSplitsTableModel implements GnucashTransact
     /**
      * @return the splits that affect this account.
      */
-    public List<? extends GnucashTransactionSplit> getTransactionSplits() {
+    public List<? extends GnuCashTransactionSplit> getTransactionSplits() {
         if (mySplits == null) {
-            return new LinkedList<GnucashTransactionSplit>();
+            return new LinkedList<GnuCashTransactionSplit>();
         }
         return mySplits;
     }
@@ -128,8 +128,8 @@ public class GnucashSimpleTransactionSplitsTableModel implements GnucashTransact
      * @param rowIndex the split to get
      * @return the split
      */
-    public GnucashTransactionSplit getTransactionSplit(final int rowIndex) {
-        GnucashTransactionSplit split = getTransactionSplits().get(rowIndex);
+    public GnuCashTransactionSplit getTransactionSplit(final int rowIndex) {
+        GnuCashTransactionSplit split = getTransactionSplits().get(rowIndex);
         return split;
     }
 
@@ -138,7 +138,7 @@ public class GnucashSimpleTransactionSplitsTableModel implements GnucashTransact
      */
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
-            GnucashTransactionSplit split = getTransactionSplit(rowIndex);
+            GnuCashTransactionSplit split = getTransactionSplit(rowIndex);
 
             updateCurrencyFormat(split);
 
@@ -217,11 +217,11 @@ public class GnucashSimpleTransactionSplitsTableModel implements GnucashTransact
     /**
      * @param split the split whos account to use for the currency
      */
-    private void updateCurrencyFormat(final GnucashTransactionSplit split) {
+    private void updateCurrencyFormat(final GnuCashTransactionSplit split) {
         currencyFormat = NumberFormat.getNumberInstance();
         try {
-            if (split.getAccount().getCurrencyNameSpace().equalsIgnoreCase("ISO4217")) {
-                Currency currency = Currency.getInstance(split.getAccount().getCurrencyID());
+            if (split.getAccount().getCmdtyCurrID().getNameSpace().equalsIgnoreCase("ISO4217")) {
+                Currency currency = Currency.getInstance(split.getAccount().getCmdtyCurrID().toString());
                 currencyFormat = NumberFormat.getCurrencyInstance();
                 currencyFormat.setCurrency(currency);
             }

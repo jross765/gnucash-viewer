@@ -22,8 +22,8 @@ import java.util.Set;
 import javax.swing.JOptionPane;
 import javax.swing.event.TableModelListener;
 
-import org.gnucash.read.GnucashAccount;
-import org.gnucash.read.GnucashTransactionSplit;
+import org.gnucash.api.read.GnuCashAccount;
+import org.gnucash.api.read.GnuCashTransactionSplit;
 
 /**
  * created: 15.05.2005 <br/>
@@ -32,12 +32,12 @@ import org.gnucash.read.GnucashTransactionSplit;
  * @author <a href="mailto:Marcus@Wolschon.biz">Marcus Wolschon</a>
  *
  */
-public class GnucashSimpleAccountTransactionsTableModel implements GnucashTransactionsSplitsTableModel {
+public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransactionsSplitsTableModel {
 
 	/**
 	 * The account who's transactions we are showing.
 	 */
-	private final GnucashAccount account;
+	private final GnuCashAccount account;
 
 	/**
 	 * The columns we display.
@@ -47,7 +47,7 @@ public class GnucashSimpleAccountTransactionsTableModel implements GnucashTransa
 	/**
 	 * @param anAccount the account whos splits to display.
 	 */
-	public GnucashSimpleAccountTransactionsTableModel(final GnucashAccount anAccount) {
+	public GnuCashSimpleAccountTransactionsTableModel(final GnuCashAccount anAccount) {
 		super();
 		account = anAccount;
 	}
@@ -56,7 +56,7 @@ public class GnucashSimpleAccountTransactionsTableModel implements GnucashTransa
 	 * the Table will be empty.
 	 *
 	 */
-	public GnucashSimpleAccountTransactionsTableModel() {
+	public GnuCashSimpleAccountTransactionsTableModel() {
 		super();
 		account = null;
 	}
@@ -73,7 +73,7 @@ public class GnucashSimpleAccountTransactionsTableModel implements GnucashTransa
 	 */
 	public int getRowCount() {
 
-		List<? extends GnucashTransactionSplit> transactionSplits = getTransactionSplits();
+		List<? extends GnuCashTransactionSplit> transactionSplits = getTransactionSplits();
 		if (transactionSplits == null) {
 			return 0;
 		}
@@ -83,9 +83,9 @@ public class GnucashSimpleAccountTransactionsTableModel implements GnucashTransa
 	/**
 	 * @return the splits that affect this account.
 	 */
-	public List<? extends GnucashTransactionSplit> getTransactionSplits() {
+	public List<? extends GnuCashTransactionSplit> getTransactionSplits() {
 		if (account == null) {
-			return new LinkedList<GnucashTransactionSplit>();
+			return new LinkedList<GnuCashTransactionSplit>();
 		}
 		return account.getTransactionSplits();
 	}
@@ -123,8 +123,8 @@ public class GnucashSimpleAccountTransactionsTableModel implements GnucashTransa
 	 * @param rowIndex the split to get
 	 * @return the split
 	 */
-	public GnucashTransactionSplit getTransactionSplit(final int rowIndex) {
-		GnucashTransactionSplit split = getTransactionSplits().get(rowIndex);
+	public GnuCashTransactionSplit getTransactionSplit(final int rowIndex) {
+		GnuCashTransactionSplit split = getTransactionSplits().get(rowIndex);
 		return split;
 	}
 
@@ -133,7 +133,7 @@ public class GnucashSimpleAccountTransactionsTableModel implements GnucashTransa
 	 */
 	public Object getValueAt(final int rowIndex, final int columnIndex) {
 		try {
-			GnucashTransactionSplit split = getTransactionSplit(rowIndex);
+			GnuCashTransactionSplit split = getTransactionSplit(rowIndex);
 
 			updateCurrencyFormat(split);
 
@@ -219,11 +219,11 @@ public class GnucashSimpleAccountTransactionsTableModel implements GnucashTransa
 	/**
 	 * @param split the split whos account to use for the currency
 	 */
-	private void updateCurrencyFormat(final GnucashTransactionSplit split) {
+	private void updateCurrencyFormat(final GnuCashTransactionSplit split) {
 		currencyFormat = NumberFormat.getNumberInstance();
 		try {
-			if (split.getAccount().getCurrencyNameSpace().equalsIgnoreCase("ISO4217")) {
-				Currency currency = Currency.getInstance(split.getAccount().getCurrencyID());
+			if (split.getAccount().getCmdtyCurrID().getNameSpace().equalsIgnoreCase("ISO4217")) {
+				Currency currency = Currency.getInstance(split.getAccount().getCmdtyCurrID().toString());
 				currencyFormat = NumberFormat.getCurrencyInstance();
 				currencyFormat.setCurrency(currency);
 			}

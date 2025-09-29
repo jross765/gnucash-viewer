@@ -19,7 +19,7 @@
  */
 package org.gnucash.jgnucash.actions;
 
-import org.gnucash.jgnucash.JGnucash;
+import org.gnucash.jgnucash.JGnuCash;
 import org.gnucash.jgnucash.plugin.DataSourcePlugin;
 import org.java.plugin.registry.Extension;
 import org.slf4j.Logger;
@@ -43,13 +43,13 @@ public final class SaveAsFilePluginMenuAction implements ActionListener {
      * Our JGnucash.java.
      * @see OpenFilePluginMenuAction
      */
-    private final JGnucash myJGnucashEditor;
+    private final JGnuCash myJGnucashEditor;
     /**
      * @param aPlugin The import-plugin.
      * @param aPluginName The name of the plugin
      * @param aGnucash TODO
      */
-    public SaveAsFilePluginMenuAction(final JGnucash aGnucash, final Extension aPlugin, final String aPluginName) {
+    public SaveAsFilePluginMenuAction(final JGnuCash aGnucash, final Extension aPlugin, final String aPluginName) {
         super();
         myJGnucashEditor = aGnucash;
         ext = aPlugin;

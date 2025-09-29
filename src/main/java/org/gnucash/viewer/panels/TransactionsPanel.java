@@ -29,16 +29,18 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import org.gnucash.numbers.FixedPointNumber;
-import org.gnucash.read.GnucashAccount;
-import org.gnucash.read.GnucashTransaction;
-import org.gnucash.read.GnucashTransactionSplit;
+import org.gnucash.api.read.GnuCashAccount;
+import org.gnucash.api.read.GnuCashTransaction;
+import org.gnucash.api.read.GnuCashTransactionSplit;
+import org.gnucash.base.basetypes.complex.GCshCmdtyCurrID;
 import org.gnucash.viewer.actions.TransactionSplitAction;
-import org.gnucash.viewer.models.GnucashSimpleAccountTransactionsTableModel;
-import org.gnucash.viewer.models.GnucashTransactionsSplitsTableModel;
+import org.gnucash.viewer.models.GnuCashSimpleAccountTransactionsTableModel;
+import org.gnucash.viewer.models.GnuCashTransactionsSplitsTableModel;
 import org.gnucash.viewer.widgets.MultiLineToolTip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import xyz.schnorxoborx.base.numbers.FixedPointNumber;
 
 /**
  * (c) 2006 by Wolschon Softwaredesign und Beratung.<br/>
@@ -94,7 +96,7 @@ public class TransactionsPanel extends JPanel {
 	/**
 	 * The model of our ${@link #transactionTable}.
 	 */
-	private GnucashTransactionsSplitsTableModel model;
+	private GnuCashTransactionsSplitsTableModel model;
 
 	/**
 	 * The panel to show a single transaction.
@@ -115,7 +117,7 @@ public class TransactionsPanel extends JPanel {
 	 * @return Returns the model.
 	 * @see #model
 	 */
-	public GnucashTransactionsSplitsTableModel getModel() {
+	public GnuCashTransactionsSplitsTableModel getModel() {
 		return model;
 	}
 
@@ -123,7 +125,7 @@ public class TransactionsPanel extends JPanel {
 	 * @param aModel The model to set.
 	 * @see #model
 	 */
-	protected void setModel(final GnucashTransactionsSplitsTableModel aModel) {
+	protected void setModel(final GnuCashTransactionsSplitsTableModel aModel) {
 		if (aModel == null) {
 			throw new IllegalArgumentException("null 'aModel' given!");
 		}
@@ -139,11 +141,11 @@ public class TransactionsPanel extends JPanel {
 		// set column-width
 		FontMetrics metrics = Toolkit.getDefaultToolkit().getFontMetrics(transactionTable.getFont());
 		getTransactionTable().getColumn("date").setPreferredWidth(
-				SwingUtilities.computeStringWidth(metrics, GnucashSimpleAccountTransactionsTableModel.dateFormat.format(LocalDateTime.now())) + 5);
+				SwingUtilities.computeStringWidth(metrics, GnuCashSimpleAccountTransactionsTableModel.dateFormat.format(LocalDateTime.now())) + 5);
 		getTransactionTable().getColumn("+").setPreferredWidth(
-				SwingUtilities.computeStringWidth(metrics, GnucashSimpleAccountTransactionsTableModel.defaultCurrencyFormat.format(10000)));
+				SwingUtilities.computeStringWidth(metrics, GnuCashSimpleAccountTransactionsTableModel.defaultCurrencyFormat.format(10000)));
 		getTransactionTable().getColumn("-").setPreferredWidth(
-				SwingUtilities.computeStringWidth(metrics, GnucashSimpleAccountTransactionsTableModel.defaultCurrencyFormat.format(-10000)));
+				SwingUtilities.computeStringWidth(metrics, GnuCashSimpleAccountTransactionsTableModel.defaultCurrencyFormat.format(-10000)));
 		TableColumn balanceColumn = null;
 		try {
 			balanceColumn = getTransactionTable().getColumn("balance");
@@ -153,19 +155,19 @@ public class TransactionsPanel extends JPanel {
 		}
 		if (balanceColumn != null) {
 			balanceColumn.setPreferredWidth(
-					SwingUtilities.computeStringWidth(metrics, GnucashSimpleAccountTransactionsTableModel.defaultCurrencyFormat.format
+					SwingUtilities.computeStringWidth(metrics, GnuCashSimpleAccountTransactionsTableModel.defaultCurrencyFormat.format
 							(-10000)));
 		}
 
 		getTransactionTable().getColumn("date").setMaxWidth(
-				SwingUtilities.computeStringWidth(metrics, GnucashSimpleAccountTransactionsTableModel.dateFormat.format(LocalDateTime.now())) + 5);
+				SwingUtilities.computeStringWidth(metrics, GnuCashSimpleAccountTransactionsTableModel.dateFormat.format(LocalDateTime.now())) + 5);
 		getTransactionTable().getColumn("+").setMaxWidth(
-				SwingUtilities.computeStringWidth(metrics, GnucashSimpleAccountTransactionsTableModel.defaultCurrencyFormat.format(1000000)));
+				SwingUtilities.computeStringWidth(metrics, GnuCashSimpleAccountTransactionsTableModel.defaultCurrencyFormat.format(1000000)));
 		getTransactionTable().getColumn("-").setMaxWidth(
-				SwingUtilities.computeStringWidth(metrics, GnucashSimpleAccountTransactionsTableModel.defaultCurrencyFormat.format(-1000000)));
+				SwingUtilities.computeStringWidth(metrics, GnuCashSimpleAccountTransactionsTableModel.defaultCurrencyFormat.format(-1000000)));
 		if (balanceColumn != null) {
 			balanceColumn.setMaxWidth(SwingUtilities
-					.computeStringWidth(metrics, GnucashSimpleAccountTransactionsTableModel.defaultCurrencyFormat.format(-1000000)));
+					.computeStringWidth(metrics, GnuCashSimpleAccountTransactionsTableModel.defaultCurrencyFormat.format(-1000000)));
 		}
 
 		getTransactionTable().getColumn("transaction").setCellRenderer(new DesriptionCellRenderer());
@@ -190,12 +192,12 @@ public class TransactionsPanel extends JPanel {
 	 *
 	 * @param account if null, an empty table will be shown.
 	 */
-	public void setAccount(final GnucashAccount account) {
+	public void setAccount(final GnuCashAccount account) {
 
 		if (account == null) {
-			setModel(new GnucashSimpleAccountTransactionsTableModel());
+			setModel(new GnuCashSimpleAccountTransactionsTableModel());
 		} else {
-			setModel(new GnucashSimpleAccountTransactionsTableModel(account));
+			setModel(new GnuCashSimpleAccountTransactionsTableModel(account));
 		}
 	}
 
@@ -266,39 +268,39 @@ public class TransactionsPanel extends JPanel {
 					//int realColumnIndex = convertColumnIndexToModel(columnAtPoint(p));
 					if (rowIndex >= 0) {
 
-						GnucashSimpleAccountTransactionsTableModel model = (GnucashSimpleAccountTransactionsTableModel) getModel();
-						GnucashTransactionSplit localSplit = model.getTransactionSplit(rowIndex);
-						GnucashTransaction transaction = localSplit.getTransaction();
+						GnuCashSimpleAccountTransactionsTableModel model = (GnuCashSimpleAccountTransactionsTableModel) getModel();
+						GnuCashTransactionSplit localSplit = model.getTransactionSplit(rowIndex);
+						GnuCashTransaction transaction = localSplit.getTransaction();
 						StringBuilder output = new StringBuilder();
 						output.append("\"")
-								.append(transaction.getTransactionNumber())
+								.append(transaction.getNumber())
 								.append("\t \"")
 								.append(transaction.getDescription())
 								.append("\"\t [")
 								.append(localSplit.getAccount().getQualifiedName())
 								.append("]\t ")
 								.append(localSplit.getQuantity())
-								.append(localSplit.getAccount().getCurrencyNameSpace().equals(GnucashAccount.CURRENCYNAMESPACE_CURRENCY) ? " "
+								.append(localSplit.getAccount().getCmdtyCurrID().getNameSpace().equals(GCshCmdtyCurrID.Type.CURRENCY) ? " "
 										: " x ")
-								.append(localSplit.getAccount().getCurrencyID())
+								.append(localSplit.getAccount().getCmdtyCurrID())
 								.append("\n");
 
-						for (GnucashTransactionSplit split : transaction.getSplits()) {
+						for (GnuCashTransactionSplit split : transaction.getSplits()) {
 							output.append("\"")
-									.append(split.getSplitAction())
+									.append(split.getAction())
 									.append("\"\t \"")
 									.append(split.getDescription())
 									.append("\"\t [")
 									.append(split.getAccount().getQualifiedName())
 									.append("]\t ")
 									.append(split.getQuantity())
-									.append(localSplit.getAccount().getCurrencyNameSpace().equals(GnucashAccount.CURRENCYNAMESPACE_CURRENCY)
+									.append(localSplit.getAccount().getCmdtyCurrID().getNameSpace().equals(GCshCmdtyCurrID.Type.CURRENCY)
 											? " " : " x ")
-									.append(split.getAccount().getCurrencyID())
+									.append(split.getAccount().getCmdtyCurrID())
 									.append("\n");
 						}
 						if (!transaction.isBalanced()) {
-							output.append("TRANSACTION IS NOT BALANACED! missung=" + transaction.getBalanceFormatet());
+							output.append("TRANSACTION IS NOT BALANACED! missung=" + transaction.getBalanceFormatted());
 						}
 
 						return output.toString();
@@ -327,7 +329,7 @@ public class TransactionsPanel extends JPanel {
 								updateSelectionSummaryAccountList();
 								updateSelectionSummary();
 								if (getTransactionTable().getSelectedRowCount() == 1) {
-									GnucashTransactionSplit transactionSplit = model.getTransactionSplit(getTransactionTable().getSelectedRow
+									GnuCashTransactionSplit transactionSplit = model.getTransactionSplit(getTransactionTable().getSelectedRow
 											());
 									//                               setTransaction(transactionSplit.getTransaction());
 
@@ -351,7 +353,7 @@ public class TransactionsPanel extends JPanel {
 
 						;
 					});
-			setModel(new GnucashSimpleAccountTransactionsTableModel());
+			setModel(new GnuCashSimpleAccountTransactionsTableModel());
 		}
 		return transactionTable;
 	}
@@ -425,7 +427,7 @@ public class TransactionsPanel extends JPanel {
 	 */
 	private void updateSelectionSummaryAccountList() {
 
-		Set<GnucashAccount> accounts = new TreeSet<GnucashAccount>();
+		Set<GnuCashAccount> accounts = new TreeSet<GnuCashAccount>();
 
 		int selectedCount = getTransactionTable().getSelectedRowCount();
 		if (selectedCount < 1) {
@@ -433,19 +435,19 @@ public class TransactionsPanel extends JPanel {
 			int count = model.getRowCount();
 
 			for (int i = 0; i < count; i++) {
-				GnucashTransactionSplit transactionSplit =
+				GnuCashTransactionSplit transactionSplit =
 						model.getTransactionSplit(i);
 
 				try {
-					GnucashTransaction transaction = transactionSplit.getTransaction();
+					GnuCashTransaction transaction = transactionSplit.getTransaction();
 					if (transaction == null) {
 						LOGGER.error("Split has no transaction");
 					} else {
-						Collection<? extends GnucashTransactionSplit> splits =
+						Collection<? extends GnuCashTransactionSplit> splits =
 								transaction.getSplits();
-						for (GnucashTransactionSplit split : splits) {
+						for (GnuCashTransactionSplit split : splits) {
 							try {
-								GnucashAccount account = split.getAccount();
+								GnuCashAccount account = split.getAccount();
 								if (account != null) {
 									if (!accounts.contains(account)) {
 										accounts.add(account);
@@ -472,9 +474,9 @@ public class TransactionsPanel extends JPanel {
 			int[] selectedRows = getTransactionTable().getSelectedRows();
 
 			for (int selectedRow : selectedRows) {
-				GnucashTransactionSplit transactionSplit = model.getTransactionSplit(selectedRow);
-				Collection<? extends GnucashTransactionSplit> splits = transactionSplit.getTransaction().getSplits();
-				for (GnucashTransactionSplit split : splits) {
+				GnuCashTransactionSplit transactionSplit = model.getTransactionSplit(selectedRow);
+				Collection<? extends GnuCashTransactionSplit> splits = transactionSplit.getTransaction().getSplits();
+				for (GnuCashTransactionSplit split : splits) {
 					if (!accounts.contains(split.getAccount())) {
 						accounts.add(split.getAccount());
 					}
@@ -484,7 +486,7 @@ public class TransactionsPanel extends JPanel {
 		}
 
 		DefaultComboBoxModel aModel = new DefaultComboBoxModel();
-		for (GnucashAccount account : accounts) {
+		for (GnuCashAccount account : accounts) {
 			aModel.addElement(account);
 		}
 
@@ -501,20 +503,20 @@ public class TransactionsPanel extends JPanel {
 	 * @param retval the list of splits to add to
 	 * @param split  the split who's transaction to look at
 	 */
-	private void replaceSplitsWithSelectedAccountsSplits(final Set<GnucashTransactionSplit> retval, final GnucashTransactionSplit split) {
+	private void replaceSplitsWithSelectedAccountsSplits(final Set<GnuCashTransactionSplit> retval, final GnuCashTransactionSplit split) {
 
 		JComboBox combo = getSelectionSummaryAccountComboBox();
-		GnucashAccount selectedAccount =
-				(GnucashAccount) combo.getSelectedItem();
+		GnuCashAccount selectedAccount =
+				(GnuCashAccount) combo.getSelectedItem();
 		if (selectedAccount == null) {
 			retval.add(split);
 		} else {
-			GnucashTransaction transaction = split.getTransaction();
-			for (GnucashTransactionSplit split2 : transaction.getSplits()) {
+			GnuCashTransaction transaction = split.getTransaction();
+			for (GnuCashTransactionSplit split2 : transaction.getSplits()) {
 				if (split2 == null) {
 					continue;
 				}
-				GnucashAccount account = split2.getAccount();
+				GnuCashAccount account = split2.getAccount();
 				if (account != null && account.equals(selectedAccount)) {
 					retval.add(split2);
 				}
@@ -533,22 +535,22 @@ public class TransactionsPanel extends JPanel {
 	 * @return the splits of the selected/all transactions featuring this/the
 	 * selected account.
 	 */
-	private Collection<GnucashTransactionSplit> getSplitsForSummary() {
+	private Collection<GnuCashTransactionSplit> getSplitsForSummary() {
 		int[] selectedRows = getTransactionTable().getSelectedRows();
-		Set<GnucashTransactionSplit> retval
-				= new HashSet<GnucashTransactionSplit>();
+		Set<GnuCashTransactionSplit> retval
+				= new HashSet<GnuCashTransactionSplit>();
 
 		if (selectedRows == null || selectedRows.length == 0) {
 			int count = model.getRowCount();
 			for (int i = 0; i < count; i++) {
-				GnucashTransactionSplit transactionSplit
+				GnuCashTransactionSplit transactionSplit
 						= model.getTransactionSplit(i);
 				replaceSplitsWithSelectedAccountsSplits(retval,
 						transactionSplit);
 			}
 		} else {
 			for (int selectedRow : selectedRows) {
-				GnucashTransactionSplit transactionSplit
+				GnuCashTransactionSplit transactionSplit
 						= model.getTransactionSplit(selectedRow);
 				replaceSplitsWithSelectedAccountsSplits(retval,
 						transactionSplit);
@@ -571,9 +573,9 @@ public class TransactionsPanel extends JPanel {
 		FixedPointNumber valueSumBalance = new FixedPointNumber(0);
 		NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 
-		Collection<GnucashTransactionSplit> splits;
+		Collection<GnuCashTransactionSplit> splits;
 		splits = getSplitsForSummary();
-		for (GnucashTransactionSplit transactionSplit : splits) {
+		for (GnuCashTransactionSplit transactionSplit : splits) {
 			FixedPointNumber value = transactionSplit.getValue();
 			valueSumBalance.add(value);
 			if (value.isPositive()) {
@@ -604,13 +606,13 @@ public class TransactionsPanel extends JPanel {
 	/**
 	 * @param aTransaction the transactions to show in detail
 	 */
-	public void setTransaction(final GnucashTransaction aTransaction) {
+	public void setTransaction(final GnuCashTransaction aTransaction) {
 		TableModel temp = getTransactionTable().getModel();
-		if (temp != null && temp instanceof GnucashTransactionsSplitsTableModel) {
-			GnucashTransactionsSplitsTableModel tblModel = (GnucashTransactionsSplitsTableModel) temp;
+		if (temp != null && temp instanceof GnuCashTransactionsSplitsTableModel) {
+			GnuCashTransactionsSplitsTableModel tblModel = (GnuCashTransactionsSplitsTableModel) temp;
 			int max = tblModel.getRowCount();
 			for (int i = 0; i < max; i++) {
-				if (tblModel.getTransactionSplit(i).getTransaction().getId() == aTransaction.getId()) {
+				if (tblModel.getTransactionSplit(i).getTransaction().getID().equals( aTransaction.getID() ) ) {
 					getTransactionTable().getSelectionModel().setSelectionInterval(i, i);
 					return;
 				}

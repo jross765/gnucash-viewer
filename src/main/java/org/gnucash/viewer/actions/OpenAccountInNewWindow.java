@@ -41,9 +41,9 @@ import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
-import org.gnucash.read.GnucashAccount;
-import org.gnucash.read.GnucashTransaction;
-import org.gnucash.read.GnucashTransactionSplit;
+import org.gnucash.api.read.GnuCashAccount;
+import org.gnucash.api.read.GnuCashTransaction;
+import org.gnucash.api.read.GnuCashTransactionSplit;
 import org.gnucash.viewer.panels.TransactionsPanel;
 
 /**
@@ -61,7 +61,7 @@ public class OpenAccountInNewWindow implements AccountAction,
     /**
      * The account we open.
      */
-    private GnucashAccount myAccount;
+    private GnuCashAccount myAccount;
 
     /**
      * @see #getValue(String)
@@ -76,7 +76,7 @@ public class OpenAccountInNewWindow implements AccountAction,
     /**
      * Optional the transaction to highlight.
      */
-    private GnucashTransaction myTransaction;
+    private GnuCashTransaction myTransaction;
 
     /**
      * Initialize.
@@ -89,14 +89,14 @@ public class OpenAccountInNewWindow implements AccountAction,
     /**
      * @param aSplit the split to show the account of.
      */
-    public OpenAccountInNewWindow(final GnucashTransactionSplit aSplit) {
+    public OpenAccountInNewWindow(final GnuCashTransactionSplit aSplit) {
         this();
         setSplit(aSplit);
     }
     /**
      * @param anAccount the account to show.
      */
-    public OpenAccountInNewWindow(final GnucashAccount anAccount) {
+    public OpenAccountInNewWindow(final GnuCashAccount anAccount) {
         this();
         setAccount(anAccount);
     }
@@ -104,7 +104,7 @@ public class OpenAccountInNewWindow implements AccountAction,
      * {@inheritDoc}
      */
     @Override
-    public void setAccount(final GnucashAccount anAccount) {
+    public void setAccount(final GnuCashAccount anAccount) {
         myAccount = anAccount;
         myTransaction = null;
     }
@@ -112,7 +112,7 @@ public class OpenAccountInNewWindow implements AccountAction,
      * {@inheritDoc}
      */
     @Override
-    public void setSplit(final GnucashTransactionSplit aSplit) {
+    public void setSplit(final GnuCashTransactionSplit aSplit) {
         myAccount = aSplit.getAccount();
         myTransaction = aSplit.getTransaction();
     }

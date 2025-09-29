@@ -1,5 +1,5 @@
 /**
- * GnucashAccountTransactionsTableModel.javaTransactionMenuAction.java
+ * GnuCashAccountTransactionsTableModel.javaTransactionMenuAction.java
  * created: 12.10.2009
  * (c) 2008 by <a href="http://Wolschon.biz">Wolschon Softwaredesign und Beratung</a>
  * This file is part of jgnucashLib-GPL by Marcus Wolschon <a href="mailto:Marcus@Wolscon.biz">Marcus@Wolscon.biz</a>.
@@ -31,28 +31,29 @@
 
 package org.gnucash.jgnucash.models;
 
-import org.gnucash.write.GnucashWritableTransactionSplit;
-import org.gnucash.viewer.models.GnucashSimpleTransactionSplitsTableModel;
-import org.gnucash.read.GnucashTransactionSplit;
-
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+
+import org.gnucash.api.read.GnuCashTransactionSplit;
+import org.gnucash.api.write.GnuCashWritableTransactionSplit;
+import org.gnucash.viewer.models.GnuCashSimpleTransactionSplitsTableModel;
+
 /**
  * (c) 2009 by <a href="http://Wolschon.biz>Wolschon Softwaredesign und Beratung</a>.<br/>
  * Project: jgnucashLib-GPL<br/>
- * GnucashAccountTransactionsTableModel<br/>
+ * GnuCashAccountTransactionsTableModel<br/>
  * created: 12.10.2009 <br/>
  *<br/><br/>
  * <b>Version  of GnucashSimpleTransactionSplitsTableModel that reacts to
  * updates</b>
  * @author  <a href="mailto:Marcus@Wolschon.biz">fox</a>
  */
-public class GnucashTransactionSplitsTableModel extends GnucashSimpleTransactionSplitsTableModel {
+public class GnuCashTransactionSplitsTableModel extends GnuCashSimpleTransactionSplitsTableModel {
 	//TODO: allow editing by the user of transaction-descriptions+dates and split-values for transactions with exactly 2 splits.
 
 	/**
@@ -64,13 +65,14 @@ public class GnucashTransactionSplitsTableModel extends GnucashSimpleTransaction
 	/**
 	 * @param aList splits to display
 	 */
-	public GnucashTransactionSplitsTableModel(final List<? extends GnucashTransactionSplit> aList) {
+	public GnuCashTransactionSplitsTableModel(final List<? extends GnuCashTransactionSplit> aList) {
 		super(aList);
 
-		for (GnucashTransactionSplit split : aList) {
-			if (split instanceof GnucashWritableTransactionSplit) {
-				GnucashWritableTransactionSplit ws = (GnucashWritableTransactionSplit) split;
-				ws.addPropertyChangeListener(myPropertyChangeListener);
+		for (GnuCashTransactionSplit split : aList) {
+			if (split instanceof GnuCashWritableTransactionSplit) {
+				GnuCashWritableTransactionSplit ws = (GnuCashWritableTransactionSplit) split;
+				// ::TODO
+				// ws.addPropertyChangeListener(myPropertyChangeListener);
 			}
 		}
 	}
@@ -78,7 +80,7 @@ public class GnucashTransactionSplitsTableModel extends GnucashSimpleTransaction
 	/**
 	 * Empty  model.
 	 */
-	public GnucashTransactionSplitsTableModel() {
+	public GnuCashTransactionSplitsTableModel() {
 		super();
 	}
 
@@ -99,7 +101,7 @@ public class GnucashTransactionSplitsTableModel extends GnucashSimpleTransaction
 		 */
 		public void propertyChange(final PropertyChangeEvent aEvt) {
 			Set<TableModelListener> listeners = getTableModelListeners();
-			TableModelEvent event = new TableModelEvent(GnucashTransactionSplitsTableModel.this);
+			TableModelEvent event = new TableModelEvent(GnuCashTransactionSplitsTableModel.this);
 			for (TableModelListener tableModelListener : listeners) {
 				tableModelListener.tableChanged(event);
 			}

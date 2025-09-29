@@ -14,12 +14,17 @@ import javax.swing.JOptionPane;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
-import org.gnucash.numbers.FixedPointNumber;
-import org.gnucash.read.GnucashAccount;
-import org.gnucash.read.GnucashTransaction;
+import org.gnucash.api.read.GnuCashAccount;
+import org.gnucash.api.read.GnuCashTransaction;
+import org.gnucash.api.write.GnuCashWritableTransaction;
+import org.gnucash.api.write.GnuCashWritableTransactionSplit;
+import org.gnucash.base.basetypes.simple.GCshAcctID;
+import org.gnucash.base.basetypes.simple.InvalidGCshIDException;
 import org.gnucash.viewer.panels.SingleTransactionTableModel;
-import org.gnucash.write.GnucashWritableTransaction;
-import org.gnucash.write.GnucashWritableTransactionSplit;
+
+import xyz.schnorxoborx.base.beanbase.NoEntryFoundException;
+import xyz.schnorxoborx.base.beanbase.TooManyEntriesFoundException;
+import xyz.schnorxoborx.base.numbers.FixedPointNumber;
 
 /**
  * (c) 2008 by <a href="http://Wolschon.biz>Wolschon Softwaredesign und Beratung</a>.<br/>
@@ -63,7 +68,7 @@ class SingleWritableTransactionTableModel extends SingleTransactionTableModel {
 	/**
 	 * @param aTransaction the transaction we are displaying.
 	 */
-	public SingleWritableTransactionTableModel(final GnucashTransaction aTransaction) {
+	public SingleWritableTransactionTableModel(final GnuCashTransaction aTransaction) {
 		super(aTransaction);
 	}
 
@@ -77,8 +82,8 @@ class SingleWritableTransactionTableModel extends SingleTransactionTableModel {
 	 * @return Returns the transaction.
 	 * @see #myTransaction
 	 */
-	public GnucashWritableTransaction getWritableTransaction() {
-		return (GnucashWritableTransaction) super.getTransaction();
+	public GnuCashWritableTransaction getWritableTransaction() {
+		return (GnuCashWritableTransaction) super.getTransaction();
 	}
 
 	/**
@@ -86,8 +91,8 @@ class SingleWritableTransactionTableModel extends SingleTransactionTableModel {
 	 * @see #myTransaction
 	 */
 	@Override
-	public void setTransaction(final GnucashTransaction aTransaction) {
-		if (!(aTransaction instanceof GnucashWritableTransaction)) {
+	public void setTransaction(final GnuCashTransaction aTransaction) {
+		if (!(aTransaction instanceof GnuCashWritableTransaction)) {
 			throw new IllegalArgumentException("only writable transactions allowed."
 					+ " Please use ShowTransactionPanel for non-writable Transactions.");
 		}
@@ -98,7 +103,7 @@ class SingleWritableTransactionTableModel extends SingleTransactionTableModel {
 	 * @param aTransaction The transaction to set.
 	 * @see #myTransaction
 	 */
-	public void setWritableTransaction(final GnucashWritableTransaction aTransaction) {
+	public void setWritableTransaction(final GnuCashWritableTransaction aTransaction) {
 		super.setTransaction(aTransaction);
 	}
 
@@ -106,19 +111,19 @@ class SingleWritableTransactionTableModel extends SingleTransactionTableModel {
 	 * @param aRowIndex the split to return (starts with 0).
 	 * @return the selected split of the transaction.
 	 */
-	public GnucashWritableTransactionSplit getWritableTransactionSplit(final int aRowIndex) {
+	public GnuCashWritableTransactionSplit getWritableTransactionSplit(final int aRowIndex) {
 		return getWritableTransactionSplits().get(aRowIndex);
 	}
 
 	/**
 	 * @return all splits of the transaction.
 	 */
-	public List<GnucashWritableTransactionSplit> getWritableTransactionSplits() {
-		GnucashWritableTransaction transaction = getWritableTransaction();
+	public List<GnuCashWritableTransactionSplit> getWritableTransactionSplits() {
+		GnuCashWritableTransaction transaction = getWritableTransaction();
 		if (transaction == null) {
 			return new LinkedList<>();
 		}
-		return new ArrayList<>(transaction.getWritingSplits());
+		return new ArrayList<>(transaction.getWritableSplits());
 
 	}
 
@@ -141,7 +146,7 @@ class SingleWritableTransactionTableModel extends SingleTransactionTableModel {
 						setDatePosted(aValue);
 						return;
 					case 1:
-						getWritableTransaction().setTransactionNumber(aValue.toString());
+						getWritableTransaction().setNumber(aValue.toString());
 						return;
 					case 2:
 						getWritableTransaction().setDescription(aValue.toString());
@@ -157,13 +162,13 @@ class SingleWritableTransactionTableModel extends SingleTransactionTableModel {
 				}
 			}
 
-			GnucashWritableTransactionSplit split = null;
+			GnuCashWritableTransactionSplit split = null;
 			boolean informListeners = false;
 			if (rowIndex == getRowCount() - 1) {
 				// add one row for adding a new split
 				if (aValue.toString().trim().length() > 0) {
-					GnucashWritableTransaction writableTransaction = getWritableTransaction();
-					split = getWritableTransaction().createWritingSplit(getBalancingAccount(writableTransaction));
+					GnuCashWritableTransaction writableTransaction = getWritableTransaction();
+					split = getWritableTransaction().createWritableSplit(getBalancingAccount(writableTransaction));
 					informListeners = true;
 				} else {
 					return;
@@ -180,7 +185,7 @@ class SingleWritableTransactionTableModel extends SingleTransactionTableModel {
 				case 0:
 					return;
 				case 1:
-					split.setSplitAction(aValue.toString());
+					split.setActionStr(aValue.toString());
 					if (informListeners) {
 						for (TableModelListener listener : myTableModelListeners) {
 							listener.tableChanged(new TableModelEvent(this));
@@ -200,7 +205,7 @@ class SingleWritableTransactionTableModel extends SingleTransactionTableModel {
 							&& split.getQuantity().equals(new FixedPointNumber())
 							&& split.getValue().equals(new FixedPointNumber())
 							&& split.getDescription().trim().length() == 0
-							&& split.getSplitAction().trim().length() == 0) {
+							&& split.getActionStr().trim().length() == 0) {
 						//remove split
 						split.remove();
 						for (TableModelListener listener : myTableModelListeners) {
@@ -209,7 +214,7 @@ class SingleWritableTransactionTableModel extends SingleTransactionTableModel {
 						return;
 					}
 					try {
-						GnucashAccount account = getTransaction().getGnucashFile().getAccountByIDorNameEx(aValue.toString(), aValue.toString());
+						GnuCashAccount account = getTransaction().getGnuCashFile().getAccountByIDorName(new GCshAcctID(aValue.toString()), aValue.toString());
 						if (account != null) {
 							split.setAccount(account);
 						}
@@ -357,25 +362,28 @@ class SingleWritableTransactionTableModel extends SingleTransactionTableModel {
 	 * @param aValue a new value for the DataPosted-column of the transaction
 	 */
 	private void setDatePosted(final Object aValue) {
-		getWritableTransaction().setDatePosted(LocalDateTime.parse(aValue.toString(), DATEFORMAT));
+		getWritableTransaction().setDatePosted(LocalDateTime.parse(aValue.toString(), DATEFORMAT).toLocalDate());
 		for (TableModelListener listener : myTableModelListeners) {
 			listener.tableChanged(new TableModelEvent(this));
 		}
 	}
 
 	/**
+	 * @throws TooManyEntriesFoundException 
+	 * @throws NoEntryFoundException 
+	 * @throws InvalidGCshIDException 
 	 */
-	protected void balanceTransaction() {
-		GnucashWritableTransaction transaction = getWritableTransaction();
+	protected void balanceTransaction() throws InvalidGCshIDException, NoEntryFoundException, TooManyEntriesFoundException {
+		GnuCashWritableTransaction transaction = getWritableTransaction();
 		if (transaction.isBalanced()) {
 			return;
 		}
 		FixedPointNumber negatedBalance = transaction.getNegatedBalance();
-		GnucashAccount balancingAccount = getBalancingAccount(transaction);
+		GnuCashAccount balancingAccount = getBalancingAccount(transaction);
 		int i = 1;
-		for (GnucashWritableTransactionSplit split : transaction.getWritingSplits()) {
+		for (GnuCashWritableTransactionSplit split : transaction.getWritableSplits()) {
 			i++;
-			if (split.getAccountID().equals(balancingAccount.getId())) {
+			if (split.getAccountID().equals(balancingAccount.getID())) {
 				split.setValue(split.getValue().add(negatedBalance));
 
 				for (TableModelListener listener : myTableModelListeners) {
@@ -384,7 +392,7 @@ class SingleWritableTransactionTableModel extends SingleTransactionTableModel {
 				return;
 			}
 		}
-		transaction.createWritingSplit(balancingAccount).setValue(negatedBalance);
+		transaction.createWritableSplit(balancingAccount).setValue(negatedBalance);
 		for (TableModelListener listener : myTableModelListeners) {
 			listener.tableChanged(new TableModelEvent(this, getRowCount() - 1));
 		}
@@ -393,9 +401,12 @@ class SingleWritableTransactionTableModel extends SingleTransactionTableModel {
 	/**
 	 * @param transaction
 	 * @return
+	 * @throws TooManyEntriesFoundException 
+	 * @throws NoEntryFoundException 
+	 * @throws InvalidGCshIDException 
 	 */
-	private GnucashAccount getBalancingAccount(final GnucashWritableTransaction transaction) {
-		return transaction.getGnucashFile().getAccountByIDorName("c3e524eccc4e66cde2dc8eb3666ff469", "Ausgleichskonto-EUR");
+	private GnuCashAccount getBalancingAccount(final GnuCashWritableTransaction transaction) throws InvalidGCshIDException, NoEntryFoundException, TooManyEntriesFoundException {
+		return transaction.getGnuCashFile().getAccountByIDorName(new GCshAcctID("xyz"), "Ausgleichskonto-EUR");
 	}
 
 	/**

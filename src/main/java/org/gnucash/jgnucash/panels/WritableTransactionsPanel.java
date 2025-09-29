@@ -33,15 +33,15 @@ package org.gnucash.jgnucash.panels;
 //other imports
 
 
-import org.gnucash.write.GnucashWritableTransactionSplit;
-import org.gnucash.jgnucash.models.GnucashAccountTransactionsTableModel;
-import org.gnucash.jgnucash.models.GnucashTransactionSplitsTableModel;
+import org.gnucash.api.write.GnuCashWritableTransactionSplit;
+import org.gnucash.jgnucash.models.GnuCashAccountTransactionsTableModel;
+import org.gnucash.jgnucash.models.GnuCashTransactionSplitsTableModel;
 import org.gnucash.jgnucash.plugin.TransactionMenuAction;
-import org.gnucash.viewer.models.GnucashSimpleAccountTransactionsTableModel;
+import org.gnucash.viewer.models.GnuCashSimpleAccountTransactionsTableModel;
 import org.gnucash.viewer.panels.ShowTransactionPanel;
 import org.gnucash.viewer.panels.TransactionsPanel;
-import org.gnucash.read.GnucashAccount;
-import org.gnucash.read.GnucashTransactionSplit;
+import org.gnucash.api.read.GnuCashAccount;
+import org.gnucash.api.read.GnuCashTransactionSplit;
 import org.java.plugin.PluginManager;
 import org.java.plugin.registry.Extension;
 import org.java.plugin.registry.ExtensionPoint;
@@ -120,11 +120,11 @@ public class WritableTransactionsPanel extends TransactionsPanel {
 		public void actionPerformed(final ActionEvent aE) {
 			try {
 				JTable table = WritableTransactionsPanel.this.getTransactionTable();
-				GnucashSimpleAccountTransactionsTableModel model = (GnucashSimpleAccountTransactionsTableModel) table.getModel();
+				GnuCashSimpleAccountTransactionsTableModel model = (GnuCashSimpleAccountTransactionsTableModel) table.getModel();
 				int[] selectedRows = table.getSelectedRows();
-				Collection<GnucashWritableTransactionSplit> transactions = new ArrayList<GnucashWritableTransactionSplit>(selectedRows.length);
+				Collection<GnuCashWritableTransactionSplit> transactions = new ArrayList<GnuCashWritableTransactionSplit>(selectedRows.length);
 				for (int i : selectedRows) {
-					transactions.add((GnucashWritableTransactionSplit) model.getTransactionSplit(i));
+					transactions.add((GnuCashWritableTransactionSplit) model.getTransactionSplit(i));
 				}
 
 
@@ -208,7 +208,7 @@ public class WritableTransactionsPanel extends TransactionsPanel {
 	/**
 	 * @param account if null, an empty table will be shown.
 	 */
-	public WritableTransactionsPanel(final GnucashAccount account) {
+	public WritableTransactionsPanel(final GnuCashAccount account) {
 		super();
 		setAccount(account);
 	}
@@ -244,12 +244,12 @@ public class WritableTransactionsPanel extends TransactionsPanel {
 	 * @param account if null, an empty table will be shown.
 	 */
 	@Override
-	public void setAccount(final GnucashAccount account) {
+	public void setAccount(final GnuCashAccount account) {
 
 		if (account == null) {
-			setModel(new GnucashAccountTransactionsTableModel());
+			setModel(new GnuCashAccountTransactionsTableModel());
 		} else {
-			setModel(new GnucashAccountTransactionsTableModel(account));
+			setModel(new GnuCashAccountTransactionsTableModel(account));
 		}
 	}
 
@@ -259,8 +259,8 @@ public class WritableTransactionsPanel extends TransactionsPanel {
 	 *
 	 * @param aTransactionList
 	 */
-	public void setDisplayedTransactions(final List<GnucashTransactionSplit> aTransactionList) {
-		setModel(new GnucashTransactionSplitsTableModel(aTransactionList));
+	public void setDisplayedTransactions(final List<GnuCashTransactionSplit> aTransactionList) {
+		setModel(new GnuCashTransactionSplitsTableModel(aTransactionList));
 	}
 
 	/**

@@ -41,6 +41,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
+import org.gnucash.api.read.GnuCashFile;
+import org.gnucash.api.write.GnuCashWritableFile;
+import org.gnucash.api.write.impl.GnuCashWritableFileImpl;
 import org.gnucash.jgnucash.actions.ImportPluginMenuAction;
 import org.gnucash.jgnucash.actions.OpenAccountInNewTabWritable;
 import org.gnucash.jgnucash.actions.OpenAccountInNewWindowWritable;
@@ -48,13 +51,10 @@ import org.gnucash.jgnucash.actions.OpenFilePluginMenuAction;
 import org.gnucash.jgnucash.actions.SaveAsFilePluginMenuAction;
 import org.gnucash.jgnucash.actions.ToolPluginMenuAction;
 import org.gnucash.jgnucash.panels.WritableTransactionsPanel;
-import org.gnucash.read.GnucashFile;
-import org.gnucash.viewer.JGnucashViewer;
+import org.gnucash.viewer.JGnuCashViewer;
 import org.gnucash.viewer.actions.AccountAction;
 import org.gnucash.viewer.actions.TransactionSplitAction;
 import org.gnucash.viewer.panels.TransactionsPanel;
-import org.gnucash.write.GnucashWritableFile;
-import org.gnucash.write.impl.GnucashFileWritingImpl;
 import org.java.plugin.PluginManager;
 import org.java.plugin.registry.Extension;
 import org.java.plugin.registry.Extension.Parameter;
@@ -74,13 +74,13 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:Marcus@Wolschon.biz">Marcus Wolschon</a>
  */
-public class JGnucash extends JGnucashViewer {
+public class JGnuCash extends JGnuCashViewer {
 
 	/**
 	 * empty constructor for GUI-designers.
 	 * DO NOT CALL.
 	 */
-	public JGnucash() {
+	public JGnuCash() {
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class JGnucash extends JGnucashViewer {
 	 * @param manager    the plugin-manager to use for loading plugins attached to extension-points of the main-plugin
 	 * @param descriptor the descriptor for the main-plugin
 	 */
-	public JGnucash(final PluginManager manager, final PluginDescriptor descriptor) {
+	public JGnuCash(final PluginManager manager, final PluginDescriptor descriptor) {
 		this();
 		setPluginManager(manager);
 		setPluginDescriptor(descriptor);
@@ -99,27 +99,27 @@ public class JGnucash extends JGnucashViewer {
 	/**
 	 * Our logger for debug- and error-output.
 	 */
-	static final Logger LOGGER = LoggerFactory.getLogger(JGnucash.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(JGnuCash.class);
 
 	/**
 	 * The data-model.
 	 */
-	private GnucashWritableFile model;
+	private GnuCashWritableFile model;
 
 	/**
-	 * Overridden to create  {@link GnucashWritableFile}.
+	 * Overridden to create  {@link GnuCashWritableFile}.
 	 * ${@inheritDoc}.
 	 */
 	@Override
-	protected final GnucashFile createModelFromFile(final File f) throws IOException {
-		return new GnucashFileWritingImpl(f);
+	protected final GnuCashFile createModelFromFile(final File f) throws IOException {
+		return new GnuCashWritableFileImpl(f);
 	}
 
 	/**
 	 * @param args ignored.
 	 */
 	public static void main(final String[] args) {
-		JGnucash ste = new JGnucash();
+		JGnuCash ste = new JGnuCash();
 		installNimbusLaF();
 		ste.initializeGUI();
 		ste.setVisible(true);
@@ -264,7 +264,7 @@ public class JGnucash extends JGnucashViewer {
 																   .append(reportItem.getMessage())
 																   .append('\n');
 													   }
-													   JOptionPane.showMessageDialog(JGnucash.this,
+													   JOptionPane.showMessageDialog(JGnuCash.this,
 															   message.toString(),
 															   "Plugins-Report",
 															   JOptionPane.INFORMATION_MESSAGE);
@@ -301,7 +301,7 @@ public class JGnucash extends JGnucashViewer {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @see org.gnucash.jgnucash.JGnucash#getJMenuBar()
+	 * @see org.gnucash.jgnucash.JGnuCash#getJMenuBar()
 	 */
 	@Override
 	public JMenuBar getJMenuBar() {
@@ -665,7 +665,7 @@ public class JGnucash extends JGnucashViewer {
 	/**
 	 * @return our model
 	 */
-	public GnucashWritableFile getWritableModel() {
+	public GnuCashWritableFile getWritableModel() {
 		return model;
 	}
 
@@ -673,7 +673,7 @@ public class JGnucash extends JGnucashViewer {
 	 * ${@inheritDoc}.
 	 */
 	@Override
-	protected GnucashFile getModel() {
+	protected GnuCashFile getModel() {
 		return model;
 	}
 
@@ -681,24 +681,24 @@ public class JGnucash extends JGnucashViewer {
 	 * ${@inheritDoc}.
 	 */
 	@Override
-	public void setModel(final GnucashFile newModel) {
-		if (!(newModel instanceof GnucashWritableFile)) {
+	public void setModel(final GnuCashFile newModel) {
+		if (!(newModel instanceof GnuCashWritableFile)) {
 			throw new IllegalArgumentException("given model is not writable!");
 		}
-		setWritableModel((GnucashWritableFile) newModel);
+		setWritableModel((GnuCashWritableFile) newModel);
 	}
 
 	/**
 	 * @param newModel our new model
 	 */
-	public void setWritableModel(final GnucashWritableFile newModel) {
+	public void setWritableModel(final GnuCashWritableFile newModel) {
 		if (newModel == null) {
 			throw new IllegalArgumentException(
 					"null not allowed for field this.model");
 		}
 
 		boolean ok = false;
-		GnucashWritableFile oldModel = model;
+		GnuCashWritableFile oldModel = model;
 		try {
 			model = newModel;
 			super.setModel(newModel);
