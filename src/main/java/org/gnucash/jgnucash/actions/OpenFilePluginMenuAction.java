@@ -1,23 +1,10 @@
-/**
- * OpenFilePluginMenuAction.java
- * Created on 06.11.2005
- * (c) 2005 by "Wolschon Softwaredesign und Beratung".
- *
- *  Permission is granted to use, modify, publish and sub-license this code
- *  as specified in the contract. If nothing else is specified these rights
- *  are given non-exclusively with no restrictions solely to the contractor(s).
- *  If no specified otherwise I reserve the right to use, modify, publish and
- *  sub-license this code to other parties myself.
- *
- * Otherwise, this code is made available under GPLv3 or later.
- *
- * -----------------------------------------------------------
- * major Changes:
- *  06.11.2005 - initial version
- * ...
- *
- */
 package org.gnucash.jgnucash.actions;
+
+import java.awt.Cursor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JOptionPane;
 
 import org.gnucash.api.write.GnuCashWritableFile;
 import org.gnucash.jgnucash.JGnuCash;
@@ -25,11 +12,6 @@ import org.gnucash.jgnucash.plugin.DataSourcePlugin;
 import org.java.plugin.registry.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * The action-listeners we use for the ImportMenu.
@@ -41,18 +23,18 @@ public final class OpenFilePluginMenuAction implements ActionListener {
     static final Logger LOGGER = LoggerFactory.getLogger(OpenFilePluginMenuAction.class);
 
     /**
-     * Our JGnucash.java.
+     * Our JGnuCash.java.
      * @see OpenFilePluginMenuAction
      */
-    private final JGnuCash myJGnucashEditor;
+    private final JGnuCash myJGnuCashEditor;
     /**
      * @param aPlugin The import-plugin.
      * @param aPluginName The name of the plugin
-     * @param aGnucash TODO
+     * @param aGnuCash TODO
      */
-    public OpenFilePluginMenuAction(final JGnuCash aGnucash, final Extension aPlugin, final String aPluginName) {
+    public OpenFilePluginMenuAction(final JGnuCash aGnuCash, final Extension aPlugin, final String aPluginName) {
         super();
-        myJGnucashEditor = aGnucash;
+        myJGnuCashEditor = aGnuCash;
         ext = aPlugin;
         pluginName = aPluginName;
     }
@@ -71,9 +53,9 @@ public final class OpenFilePluginMenuAction implements ActionListener {
         try {
 
             // Activate plug-in that declares extension.
-            myJGnucashEditor.getPluginManager().activatePlugin(ext.getDeclaringPluginDescriptor().getId());
+            myJGnuCashEditor.getPluginManager().activatePlugin(ext.getDeclaringPluginDescriptor().getId());
             // Get plug-in class loader.
-            ClassLoader classLoader = myJGnucashEditor.getPluginManager().getPluginClassLoader(
+            ClassLoader classLoader = myJGnuCashEditor.getPluginManager().getPluginClassLoader(
                                       ext.getDeclaringPluginDescriptor());
             // Load Tool class.
             Class toolCls = classLoader.loadClass(
@@ -82,7 +64,7 @@ public final class OpenFilePluginMenuAction implements ActionListener {
             Object o = toolCls.newInstance();
             if (!(o instanceof DataSourcePlugin)) {
                 LOGGER.error("Plugin '" + pluginName + "' does not implement DataSourcePlugin-interface.");
-                JOptionPane.showMessageDialog(myJGnucashEditor, "Error",
+                JOptionPane.showMessageDialog(myJGnuCashEditor, "Error",
                         "Plugin '" + pluginName + "' does not implement DataSourcePlugin-interface.",
                         JOptionPane.ERROR_MESSAGE);
                 return;
@@ -90,23 +72,23 @@ public final class OpenFilePluginMenuAction implements ActionListener {
             }
             DataSourcePlugin importer = (DataSourcePlugin) o;
             try {
-                myJGnucashEditor.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                myJGnuCashEditor.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 GnuCashWritableFile loadedFile = importer.loadFile();
                 if (loadedFile != null) {
-                    myJGnucashEditor.setWritableModel(loadedFile);
+                    myJGnuCashEditor.setWritableModel(loadedFile);
                 }
             } catch (Exception e1) {
                 LOGGER.error("Load via Plugin '" + pluginName + "' failed.", e1);
-                JOptionPane.showMessageDialog(myJGnucashEditor, "Error",
+                JOptionPane.showMessageDialog(myJGnuCashEditor, "Error",
                         "Load via Plugin '" + pluginName + "' failed.\n"
                         + "[" + e1.getClass().getName() + "]: " + e1.getMessage(),
                         JOptionPane.ERROR_MESSAGE);
             } finally {
-                myJGnucashEditor.setCursor(Cursor.getDefaultCursor());
+                myJGnuCashEditor.setCursor(Cursor.getDefaultCursor());
             }
         } catch (Exception e1) {
             LOGGER.error("Could not activate requested Loader-plugin '" + pluginName + "'.", e1);
-            JOptionPane.showMessageDialog(myJGnucashEditor, "Error",
+            JOptionPane.showMessageDialog(myJGnuCashEditor, "Error",
                     "Could not activate requested Loader-plugin '" + pluginName + "'.\n"
                     + "[" + e1.getClass().getName() + "]: " + e1.getMessage(),
                     JOptionPane.ERROR_MESSAGE);

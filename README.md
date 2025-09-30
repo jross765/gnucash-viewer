@@ -7,7 +7,7 @@ GnuCash
 files.
 
 ## Major Changes 
-### V. 1.8
+### V. 1.1
 New.
 
 ## Planned

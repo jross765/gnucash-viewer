@@ -16,14 +16,7 @@ import org.gnucash.api.read.GnuCashTransactionSplit;
 import org.gnucash.viewer.models.GnuCashTransactionsSplitsTableModel;
 
 /**
- * (c) 2009 by <a href="http://Wolschon.biz>Wolschon Softwaredesign und Beratung</a>.<br/>
- * Project: jgnucashLib-GPL<br/>
- * SingleTransactionTableModel<br/>
- * created: 11.03.2009 <br/>
- * <br/><br/>
- * <b>TableModel to show and edit the splits and details of a single transaction.</b>
- *
- * @author <a href="mailto:Marcus@Wolschon.biz">Marcus Wolschon</a>
+ * TableModel to show and edit the splits and details of a single transaction.
  */
 public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTableModel {
 

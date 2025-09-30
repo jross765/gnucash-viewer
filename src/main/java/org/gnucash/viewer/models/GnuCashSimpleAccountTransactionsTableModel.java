@@ -1,12 +1,3 @@
-/**
- * GnucashSimpleAccountTransactionsTableModel.java
- * Created on 15.05.2005
- * (c) 2005 by "Wolschon Softwaredesign und Beratung".
- * -----------------------------------------------------------
- * major Changes:
- * 15.05.2005 - initial version
- * ...
- */
 package org.gnucash.viewer.models;
 
 import java.io.PrintWriter;
@@ -26,11 +17,7 @@ import org.gnucash.api.read.GnuCashAccount;
 import org.gnucash.api.read.GnuCashTransactionSplit;
 
 /**
- * created: 15.05.2005 <br/>
- *
  * A TableModel that shows the transaction and balance of an Account.
- * @author <a href="mailto:Marcus@Wolschon.biz">Marcus Wolschon</a>
- *
  */
 public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransactionsSplitsTableModel {
 

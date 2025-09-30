@@ -1,13 +1,3 @@
-/**
- * JGnucashViewer.java
- * Created on 15.05.2005
- * (c) 2005 by "Wolschon Softwaredesign und Beratung".
- * -----------------------------------------------------------
- * major Changes:
- * 15.05.2005 - initial version
- * 16.05.2005 - split into JGnucashViewer and JGnucash
- * ...
- */
 package org.gnucash.viewer;
 
 import java.awt.BorderLayout;
@@ -65,10 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * created: 15.05.2005 <br/>
- * Simple Viewer for Gnucash-Files.
- *
- * @author <a href="mailto:Marcus@Wolschon.biz">Marcus Wolschon</a>
+ * Simple Viewer for GnuCash-Files.
  */
 @SuppressWarnings("serial")
 public class JGnuCashViewer extends JFrame {
@@ -172,7 +159,7 @@ public class JGnuCashViewer extends JFrame {
 	/**
 	 * The title of the frame.
 	 */
-	private static final String TITLE = "JGnucash";
+	private static final String TITLE = "JGnuCash";
 
 	/**
 	 * The split-pane between account-tree and transactions-table.
@@ -245,7 +232,7 @@ public class JGnuCashViewer extends JFrame {
 
 	/**
 	 * This method initializes
-	 * the GnucashViewer.
+	 * the GnuCashViewer.
 	 */
 	public JGnuCashViewer() {
 		super();
@@ -686,7 +673,7 @@ public class JGnuCashViewer extends JFrame {
 			mySplitActions.add(new OpenAccountInNewTab(getJTabbedPane()));
 			mySplitActions.add(new OpenAccountInNewWindow());
 		}
-		LOGGER.info("JGnucashViewer has " + (mySplitActions == null ? "no" : mySplitActions.size()) + " split-actions");
+		LOGGER.info("JGnuCashViewer has " + (mySplitActions == null ? "no" : mySplitActions.size()) + " split-actions");
 		return mySplitActions;
 	}
 
