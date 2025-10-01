@@ -159,7 +159,7 @@ public class JGnuCashViewer extends JFrame {
 	/**
 	 * The title of the frame.
 	 */
-	private static final String TITLE = "JGnuCash";
+	private static final String TITLE = "JGnuCash Viewer";
 
 	/**
 	 * The split-pane between account-tree and transactions-table.
