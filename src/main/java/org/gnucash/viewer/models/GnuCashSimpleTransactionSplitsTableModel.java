@@ -20,9 +20,6 @@ import org.gnucash.api.read.GnuCashTransactionSplit;
  */
 public class GnuCashSimpleTransactionSplitsTableModel implements GnuCashTransactionsSplitsTableModel {
 
-    /**
-     * The account who's transactions we are showing.
-     */
     private final List<? extends GnuCashTransactionSplit> mySplits;
 
 
@@ -127,17 +124,17 @@ public class GnuCashSimpleTransactionSplitsTableModel implements GnuCashTransact
             updateCurrencyFormat(split);
 
             switch(columnIndex) {
-            case 0: { //DATE
-                return dateFormat.format(split.getTransaction().getDatePosted());
+            case 0: { // date
+				return split.getTransaction().getDatePostedFormatted();
             }
-            case 1: { //transaction
+            case 1: { // transaction
                 String desc = split.getTransaction().getDescription();
                 if (desc == null || desc.trim().length() == 0) {
                     return "";
                 }
                 return desc;
             }
-            case 2: { //description
+            case 2: { // description
                 String desc = split.getDescription();
                 if (desc == null || desc.trim().length() == 0) {
                     return "";

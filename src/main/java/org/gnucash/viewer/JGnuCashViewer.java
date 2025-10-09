@@ -55,20 +55,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Simple Viewer for GnuCash-Files.
+ * Simple Viewer for GnuCash files.
  */
 @SuppressWarnings("serial")
 public class JGnuCashViewer extends JFrame {
 
+	private static final String TITLE = "JGnuCash Viewer";
+
+	private static final int DEFAULT_WIDTH  = 750;
+	private static final int DEFAULT_HEIGHT = 600;
+
 	/**
-	 * (c) 2010 by <a href="http://Wolschon.biz>Wolschon Softwaredesign und Beratung</a>.<br/>
-	 * Project: jgnucashLib-GPL<br/>
-	 * AccountActionWrapper<br/>
-	 * created: 17.11.2010 <br/>
-	 * <br/><br/>
-	 * <b>Wrapper for an {@link AccountAction} that knows about {@link JGnuCashViewer#getSelectedAccount()}.</b>
-	 *
-	 * @author <a href="mailto:Marcus@Wolschon.biz">marcus</a>
+	 * Wrapper for an {@link AccountAction} that knows about {@link JGnuCashViewer#getSelectedAccount()}.
 	 */
 	private final class AccountActionWrapper implements Action {
 		/**
@@ -155,11 +153,6 @@ public class JGnuCashViewer extends JFrame {
 	 * The currently selected account.
 	 */
 	private GnuCashAccount selectedAccount = null;
-
-	/**
-	 * The title of the frame.
-	 */
-	private static final String TITLE = "JGnuCash Viewer";
 
 	/**
 	 * The split-pane between account-tree and transactions-table.
@@ -473,12 +466,9 @@ public class JGnuCashViewer extends JFrame {
 	 * This method initializes this gui.
 	 */
 	protected void initializeGUI() {
-		final int defaultWidth = 750;
-		final int defaultHeight = 600;
-
 		this.setJMenuBar(getJMenuBar());
 		this.setContentPane(getJContentPane());
-		this.setSize(defaultWidth, defaultHeight);
+		this.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		this.setTitle(TITLE);
 		this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 

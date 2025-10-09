@@ -20,9 +20,7 @@ import org.slf4j.LoggerFactory;
  * A TreeModel representing the accounts in a GnuCash-File.
  */
 public class GnuCashAccountsTreeModel implements TreeModel {
-    /**
-     * Our logger for debug- and error-ourput.
-     */
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GnuCashAccountsTreeModel.class);
 
     /**

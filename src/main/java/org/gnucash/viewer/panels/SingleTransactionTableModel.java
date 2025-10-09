@@ -11,6 +11,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.event.TableModelListener;
 
+import org.gnucash.api.Const;
 import org.gnucash.api.read.GnuCashTransaction;
 import org.gnucash.api.read.GnuCashTransactionSplit;
 import org.gnucash.viewer.models.GnuCashTransactionsSplitsTableModel;
@@ -21,7 +22,7 @@ import org.gnucash.viewer.models.GnuCashTransactionsSplitsTableModel;
 public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTableModel {
 
 	/**
-	 * The transaction we are showing.
+	 * The transaction that we are showing.
 	 */
 	private GnuCashTransaction myTransaction;
 
@@ -33,12 +34,12 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 	/**
 	 * How to format dates.
 	 */
-	public static final DateTimeFormatter DATEFORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern(Const.REDUCED_DATE_FORMAT_BOOK);
 
 	/**
 	 * How to format currencies.
 	 */
-	public static final NumberFormat DEFAULTCURRENCYFORMAT = NumberFormat.getCurrencyInstance();
+	public static final NumberFormat DEFAULT_CURRENCY_FORMAT = NumberFormat.getCurrencyInstance();
 
 	/**
 	 * @param aTransaction the transaction we are showing
@@ -160,11 +161,11 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 			if (rowIndex == 0) {
 				// show data of transaction
 				switch (columnIndex) {
-					case 0: //DATE
-						return DATEFORMAT.format(getTransaction().getDatePosted());
-					case 1: //action == transaction-Number
+					case 0: // date
+						return getTransaction().getDatePostedFormatted();
+					case 1: // action == transaction-Number
 						return getTransactionNumber();
-					case 2: //description
+					case 2: // description
 						return getTransactionDescription();
 					case 3: { // account
 						return "";
@@ -184,17 +185,17 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 			GnuCashTransactionSplit split = getTransactionSplit(rowIndex - 1);
 
 			switch (columnIndex) {
-				case 0: { //DATE
-					return DATEFORMAT.format(split.getTransaction().getDatePosted());
+				case 0: { // date
+					return split.getTransaction().getDatePostedFormatted();
 				}
-				case 1: { //action
+				case 1: { // action
 					String action = split.getActionStr();
 					if (action == null || action.trim().length() == 0) {
 						return "";
 					}
 					return action;
 				}
-				case 2: { //description
+				case 2: { // description
 					String desc = split.getDescription();
 					if (desc == null || desc.trim().length() == 0) {
 						return "";

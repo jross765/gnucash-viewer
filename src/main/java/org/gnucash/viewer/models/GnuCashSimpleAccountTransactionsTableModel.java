@@ -22,7 +22,7 @@ import org.gnucash.api.read.GnuCashTransactionSplit;
 public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransactionsSplitsTableModel {
 
 	/**
-	 * The account who's transactions we are showing.
+	 * The account the transactions of which we are showing.
 	 */
 	private final GnuCashAccount account;
 
@@ -94,7 +94,7 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 	/**
 	 * How to format dates.
 	 */
-	public static final DateTimeFormatter dateFormat = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+	public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 	/**
 	 * How to format currencies.
 	 */
@@ -102,7 +102,7 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 	/**
 	 * How to format currencies.
 	 */
-	public static final NumberFormat defaultCurrencyFormat = NumberFormat.getCurrencyInstance();
+	public static final NumberFormat DEFAULT_CURRENCY_FORMAT = NumberFormat.getCurrencyInstance();
 
 	/**
 	 * Get the TransactionsSplit at the given index.
@@ -125,17 +125,17 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 			updateCurrencyFormat(split);
 
 			switch (columnIndex) {
-				case 0: { //DATE
-					return dateFormat.format(split.getTransaction().getDatePosted());
+				case 0: { // date
+					return split.getTransaction().getDatePostedFormatted();
 				}
-				case 1: { //transaction
+				case 1: { // transaction
 					String desc = split.getTransaction().getDescription();
 					if (desc == null || desc.trim().length() == 0) {
 						return "";
 					}
 					return desc;
 				}
-				case 2: { //description
+				case 2: { // description
 					String desc = split.getDescription();
 					if (desc == null || desc.trim().length() == 0) {
 						return "";
