@@ -21,45 +21,44 @@ import org.gnucash.viewer.models.GnuCashTransactionsSplitsTableModel;
  */
 public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTableModel {
 
-	/**
-	 * The transaction that we are showing.
-	 */
+	// The transaction that we are showing
 	private GnuCashTransaction myTransaction;
 
-	/**
-	 * The columns we display.
-	 */
-	private final String[] defaultColumnNames = new String[] {"date", "action", "description", "account", "+", "-"};
+	// The columns we display
+	private final String[] defaultColumnNames = new String[] {
+			Messages_SingleTransactionTableModel.getString("SingleTransactionTableModel.1"), 
+			Messages_SingleTransactionTableModel.getString("SingleTransactionTableModel.2"), 
+			Messages_SingleTransactionTableModel.getString("SingleTransactionTableModel.3"), 
+			Messages_SingleTransactionTableModel.getString("SingleTransactionTableModel.4"), 
+			Messages_SingleTransactionTableModel.getString("SingleTransactionTableModel.5"), 
+			Messages_SingleTransactionTableModel.getString("SingleTransactionTableModel.6"), 
+		};
 
-	/**
-	 * How to format dates.
-	 */
+	// How to format dates
 	public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern(Const.REDUCED_DATE_FORMAT_BOOK);
 
-	/**
-	 * How to format currencies.
-	 */
+	// How to format currencies
 	public static final NumberFormat DEFAULT_CURRENCY_FORMAT = NumberFormat.getCurrencyInstance();
 
 	/**
-	 * @param aTransaction the transaction we are showing
+	 * @param trx the transaction we are showing
 	 */
-	public SingleTransactionTableModel(final GnuCashTransaction aTransaction) {
+	public SingleTransactionTableModel(final GnuCashTransaction trx) {
 		super();
-		myTransaction = aTransaction;
+		myTransaction = trx;
 	}
 
 	/**
 	 * @return true if more then 1 currency is involved
 	 */
 	public boolean isMultiCurrency() {
-		if (getTransaction() == null) {
+		if ( getTransaction() == null ) {
 			return false;
 		}
 
-		for (GnuCashTransactionSplit split : getTransaction().getSplits()) {
-			if (!split.getAccount().getCmdtyCurrID().getNameSpace().equals(getTransaction().getCmdtyCurrID().getNameSpace())
-					|| !split.getAccount().getCmdtyCurrID().equals(getTransaction().getCmdtyCurrID().toString())) {
+		for ( GnuCashTransactionSplit split : getTransaction().getSplits() ) {
+			if ( ! split.getAccount().getCmdtyCurrID().getNameSpace().equals(getTransaction().getCmdtyCurrID().getNameSpace()) || 
+				 ! split.getAccount().getCmdtyCurrID().equals(getTransaction().getCmdtyCurrID().toString()) ) {
 				return true;
 			}
 		}
@@ -83,19 +82,20 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 	}
 
 	/**
-	 * @param aTransaction The transaction to set.
+	 * @param trx The transaction to set.
 	 * @see #myTransaction
 	 */
-	public void setTransaction(final GnuCashTransaction aTransaction) {
-		if (aTransaction == null) {
-			throw new IllegalArgumentException("null 'aTransaction' given!");
+	public void setTransaction(final GnuCashTransaction trx) {
+		if ( trx == null ) {
+			throw new IllegalArgumentException("argument <trx> is null");
 		}
 
 		Object old = myTransaction;
-		if (old == aTransaction) {
+		if ( old == trx ) {
 			return; // nothing has changed
 		}
-		myTransaction = aTransaction;
+		
+		myTransaction = trx;
 	}
 
 	/**
@@ -110,11 +110,11 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 	 */
 	public List<GnuCashTransactionSplit> getTransactionSplits() {
 		GnuCashTransaction transaction = getTransaction();
-		if (transaction == null) {
+		if ( transaction == null ) {
 			return new LinkedList<GnuCashTransactionSplit>();
 		}
+		
 		return new ArrayList<GnuCashTransactionSplit>(transaction.getSplits());
-
 	}
 
 	/**
@@ -132,9 +132,8 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 	 * @see javax.swing.table.TableModel#getRowCount()
 	 */
 	public int getRowCount() {
-
 		GnuCashTransaction transaction = getTransaction();
-		if (transaction == null) {
+		if ( transaction == null ) {
 			return 0;
 		}
 		return 1 + getTransactionSplits().size();
@@ -156,7 +155,7 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(final int rowIndex, final int columnIndex) {
-		// "date", "action", "description", "account", "+", "-"};
+		// "date", "action", "description", "account", "+", "-"
 		try {
 			if (rowIndex == 0) {
 				// show data of transaction
@@ -178,7 +177,7 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 					}
 
 					default:
-						throw new IllegalArgumentException("illegal columnIndex " + columnIndex);
+						throw new IllegalArgumentException("illegal column index " + columnIndex);
 				}
 			}
 
@@ -190,14 +189,16 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 				}
 				case 1: { // action
 					String action = split.getActionStr();
-					if (action == null || action.trim().length() == 0) {
+					if ( action == null || 
+						 action.trim().length() == 0 ) {
 						return "";
 					}
 					return action;
 				}
 				case 2: { // description
 					String desc = split.getDescription();
-					if (desc == null || desc.trim().length() == 0) {
+					if ( desc == null || 
+						 desc.trim().length() == 0 ) {
 						return "";
 					}
 					return desc;
@@ -206,9 +207,9 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 					return split.getAccount().getQualifiedName();
 				}
 				case 4: { // +
-					if (split.getValue().isPositive()) {
-						if (split.getAccount().getCmdtyCurrID().getNameSpace().equals(getTransaction().getCmdtyCurrID().getNameSpace())
-								&& split.getAccount().getCmdtyCurrID().equals(getTransaction().getCmdtyCurrID())) {
+					if ( split.getValue().isPositive() ) {
+						if ( split.getAccount().getCmdtyCurrID().getNameSpace().equals(getTransaction().getCmdtyCurrID().getNameSpace()) && 
+							 split.getAccount().getCmdtyCurrID().equals(getTransaction().getCmdtyCurrID()) ) {
 							return split.getValueFormatted();
 						}
 						return split.getValueFormatted() + " (" + split.getQuantityFormatted() + ")";
@@ -217,9 +218,9 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 					}
 				}
 				case 5: { // -
-					if (!split.getValue().isPositive()) {
-						if (split.getAccount().getCmdtyCurrID().getNameSpace().equals(getTransaction().getCmdtyCurrID().getNameSpace())
-								&& split.getAccount().getCmdtyCurrID().equals(getTransaction().getCmdtyCurrID())) {
+					if ( ! split.getValue().isPositive() ) {
+						if ( split.getAccount().getCmdtyCurrID().getNameSpace().equals(getTransaction().getCmdtyCurrID().getNameSpace()) && 
+							 split.getAccount().getCmdtyCurrID().equals(getTransaction().getCmdtyCurrID()) ) {
 							return split.getValueFormatted();
 						}
 						return split.getValueFormatted() + " (" + split.getQuantityFormatted() + ")";
@@ -260,7 +261,8 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 	 */
 	private Object getTransactionDescription() {
 		String desc = getTransaction().getDescription();
-		if (desc == null || desc.trim().length() == 0) {
+		if ( desc == null || 
+			 desc.trim().length() == 0 ) {
 			return "";
 		}
 		return desc;
@@ -271,7 +273,8 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 	 */
 	private Object getTransactionNumber() {
 		String number = getTransaction().getNumber();
-		if (number == null || number.trim().length() == 0) {
+		if ( number == null || 
+			 number.trim().length() == 0 ) {
 			return "";
 		}
 		return number;

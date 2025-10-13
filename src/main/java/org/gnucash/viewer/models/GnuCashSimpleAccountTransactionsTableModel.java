@@ -15,24 +15,28 @@ import javax.swing.event.TableModelListener;
 
 import org.gnucash.api.read.GnuCashAccount;
 import org.gnucash.api.read.GnuCashTransactionSplit;
+import org.gnucash.base.basetypes.complex.GCshCmdtyCurrID;
 
 /**
  * A TableModel that shows the transaction and balance of an Account.
  */
 public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransactionsSplitsTableModel {
 
-	/**
-	 * The account the transactions of which we are showing.
-	 */
+	// The account the transactions of which we are showing.
 	private final GnuCashAccount account;
 
-	/**
-	 * The columns we display.
-	 */
-	private final String[] defaultColumnNames = new String[] {"date", "transaction", "description", "+", "-", "balance"};
+	// The columns we display.
+	private final String[] defaultColumnNames = new String[] {
+			Messages_GnuCashSimpleAccountTransactionsTableModel.getString("GnuCashSimpleAccountTransactionsTableModel.1"), 
+			Messages_GnuCashSimpleAccountTransactionsTableModel.getString("GnuCashSimpleAccountTransactionsTableModel.2"), 
+			Messages_GnuCashSimpleAccountTransactionsTableModel.getString("GnuCashSimpleAccountTransactionsTableModel.3"), 
+			Messages_GnuCashSimpleAccountTransactionsTableModel.getString("GnuCashSimpleAccountTransactionsTableModel.4"), 
+			Messages_GnuCashSimpleAccountTransactionsTableModel.getString("GnuCashSimpleAccountTransactionsTableModel.5"), 
+			Messages_GnuCashSimpleAccountTransactionsTableModel.getString("GnuCashSimpleAccountTransactionsTableModel.6")
+		};
 
 	/**
-	 * @param anAccount the account whos splits to display.
+	 * @param anAccount the account the splits of which to display.
 	 */
 	public GnuCashSimpleAccountTransactionsTableModel(final GnuCashAccount anAccount) {
 		super();
@@ -59,9 +63,8 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 	 * {@inheritDoc}
 	 */
 	public int getRowCount() {
-
 		List<? extends GnuCashTransactionSplit> transactionSplits = getTransactionSplits();
-		if (transactionSplits == null) {
+		if ( transactionSplits == null ) {
 			return 0;
 		}
 		return transactionSplits.size();
@@ -71,7 +74,7 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 	 * @return the splits that affect this account.
 	 */
 	public List<? extends GnuCashTransactionSplit> getTransactionSplits() {
-		if (account == null) {
+		if ( account == null ) {
 			return new LinkedList<GnuCashTransactionSplit>();
 		}
 		return account.getTransactionSplits();
@@ -91,17 +94,13 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 		return String.class;
 	}
 
-	/**
-	 * How to format dates.
-	 */
+	// How to format dates
 	public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-	/**
-	 * How to format currencies.
-	 */
+	
+	// How to format currencies
 	private NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
-	/**
-	 * How to format currencies.
-	 */
+
+	// How to format currencies.
 	public static final NumberFormat DEFAULT_CURRENCY_FORMAT = NumberFormat.getCurrencyInstance();
 
 	/**
@@ -143,7 +142,7 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 					return desc;
 				}
 				case 3: { // +
-					if (split.getQuantity().isPositive()) {
+					if ( split.getQuantity().isPositive() ) {
 						//                  //T O D O: use default-currency here
 						//                  if (account != null && !account.getCurrencyID().equals("EUR")) {
 						//                      return split.getValueFormatet();
@@ -154,7 +153,7 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 					}
 				}
 				case 4: { // -
-					if (!split.getQuantity().isPositive()) {
+					if ( ! split.getQuantity().isPositive() ) {
 						//                    if (account != null && !account.getCurrencyID().equals("EUR")) {
 						//                        return split.getValueFormatet();
 						//                    }
@@ -164,14 +163,14 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 					}
 				}
 				case 5: { // balance
-					if (account != null) {
+					if ( account != null ) {
 						return currencyFormat.format(account.getBalance(split));
 					} else {
 						return currencyFormat.format(split.getAccount().getBalance(split));
 					}
 				}
 				default:
-					throw new IllegalArgumentException("illegal columnIndex " + columnIndex);
+					throw new IllegalArgumentException("illegal column index " + columnIndex);
 			}
 
 		}
@@ -209,8 +208,8 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 	private void updateCurrencyFormat(final GnuCashTransactionSplit split) {
 		currencyFormat = NumberFormat.getNumberInstance();
 		try {
-			if (split.getAccount().getCmdtyCurrID().getNameSpace().equalsIgnoreCase("ISO4217")) {
-				Currency currency = Currency.getInstance(split.getAccount().getCmdtyCurrID().toString());
+			if ( split.getAccount().getCmdtyCurrID().getType() == GCshCmdtyCurrID.Type.CURRENCY ) {
+				Currency currency = Currency.getInstance(split.getAccount().getCmdtyCurrID().getCode());
 				currencyFormat = NumberFormat.getCurrencyInstance();
 				currencyFormat.setCurrency(currency);
 			}
@@ -262,7 +261,6 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 	 */
 	public void removeTableModelListener(final TableModelListener l) {
 		myTableModelListeners.remove(l);
-
 	}
 
 }

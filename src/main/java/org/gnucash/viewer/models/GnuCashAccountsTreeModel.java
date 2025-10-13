@@ -64,12 +64,14 @@ public class GnuCashAccountsTreeModel implements TreeModel {
          */
         private static GnuCashAccount getRootAccount(final GnuCashFile aFile) {
             if (aFile == null) {
-                throw new IllegalArgumentException("null file given");
+                throw new IllegalArgumentException("argument <aFile> is null");
             }
+            
             GnuCashAccount root = aFile.getRootAccount();
             if (root == null) {
                 throw new IllegalArgumentException("root-account is null");
             }
+            
             return root;
 
         }
@@ -119,9 +121,11 @@ public class GnuCashAccountsTreeModel implements TreeModel {
          */
         public GnuCashAccountTreeEntry(final GnuCashAccount anAccount) {
             super();
+            
             if (anAccount == null) {
-                throw new IllegalArgumentException("null account given");
+                throw new IllegalArgumentException("argument <anAccount> is null");
             }
+            
             myAccount = anAccount;
         }
         /**
@@ -257,10 +261,10 @@ public class GnuCashAccountsTreeModel implements TreeModel {
      */
     public void setFile(final GnuCashFile file) {
         if (file == null) {
-            throw new IllegalArgumentException(
-                    "null not allowed for field this.file");
+            throw new IllegalArgumentException("argument <file> is null");
         }
-       rootEntry = new GnuCashAccountTreeRootEntry(file);
+        
+        rootEntry = new GnuCashAccountTreeRootEntry(file);
 
         fireTreeStructureChanged(getPathToRoot());
     }
@@ -276,12 +280,11 @@ public class GnuCashAccountsTreeModel implements TreeModel {
      * @param path the path to inform our {@link TreeModelListener}s about.
      */
     protected void fireTreeStructureChanged(final TreePath path) {
-     TreeModelEvent evt = new TreeModelEvent(this, path);
+		TreeModelEvent evt = new TreeModelEvent( this, path );
 
-     for (TreeModelListener listener : listeners) {
-        listener.treeStructureChanged(evt);
-
-    }
+		for ( TreeModelListener listener : listeners ) {
+			listener.treeStructureChanged( evt );
+		}
     }
 
 }
