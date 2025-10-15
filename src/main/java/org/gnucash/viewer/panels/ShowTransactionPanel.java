@@ -25,6 +25,7 @@ import org.gnucash.api.read.GnuCashTransactionSplit;
 import org.gnucash.viewer.Const;
 import org.gnucash.viewer.actions.TransactionSplitAction;
 import org.gnucash.viewer.models.GnuCashTransactionsSplitsTableModel;
+import org.gnucash.viewer.models.SingleTransactionTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

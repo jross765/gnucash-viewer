@@ -16,52 +16,31 @@ import org.gnucash.api.read.GnuCashFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * A TreeModel representing the accounts in a GnuCash-File.
+/*
+ * A Tree model representing the accounts in a GnuCash file.
  */
 public class GnuCashAccountsTreeModel implements TreeModel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GnuCashAccountsTreeModel.class);
 
-    /**
-     * @param file where we get our data from
-     */
     public GnuCashAccountsTreeModel(final GnuCashFile file) {
         super();
         setFile(file);
     }
 
-    /**
-     * The tree-root.
-     */
+    // The tree-root
     private GnuCashAccountTreeRootEntry rootEntry;
 
-    /**
-     * (c) 2009 by <a href="http://Wolschon.biz>Wolschon Softwaredesign und Beratung</a>.<br/>
-     * Project: jgnucashLib-GPL<br/>
-     * GnuCashAccountTreeRootEntry<br/>
-     * <br/><br/>
-     * <b>Helper-class representing a tree-entry.</b>
-     * @author  <a href="mailto:Marcus@Wolschon.biz">fox</a>
-     */
     public static class GnuCashAccountTreeRootEntry extends GnuCashAccountTreeEntry {
 
-        /**
-         * where we get our data from.
-         */
+        // where we get our data from.
         private final GnuCashFile file;
 
-        /**
-         * @param aFile where we get our data from
-         */
         public GnuCashAccountTreeRootEntry(final GnuCashFile aFile) {
             super(getRootAccount(aFile));
             file = aFile;
         }
-        /**
-         * @param aFile where we get our data from
-         * @return the root-account checked for null
-         */
+
         private static GnuCashAccount getRootAccount(final GnuCashFile aFile) {
             if (aFile == null) {
                 throw new IllegalArgumentException("argument <aFile> is null");
@@ -75,24 +54,16 @@ public class GnuCashAccountsTreeModel implements TreeModel {
             return root;
 
         }
-        /**
-         * @return where we get our data from
-         */
+
         public GnuCashFile getFile() {
             return file;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public String toString() {
             return "";
         }
 
-        /**
-         * @return the accounts below us
-         */
         @Override
         public List<? extends GnuCashAccount> getChildAccounts() {
         	ArrayList result = new ArrayList<GnuCashAccount>();
@@ -101,24 +72,11 @@ public class GnuCashAccountsTreeModel implements TreeModel {
         }
     }
 
-    /**
-     * (c) 2009 by <a href="http://Wolschon.biz>Wolschon Softwaredesign und Beratung</a>.<br/>
-     * Project: jgnucashLib-GPL<br/>
-     * GnuCashAccountTreeEntry<br/>
-     * <br/>
-     * <b>Helper-class representing a tree-entry.</b>
-     * @author  <a href="mailto:Marcus@Wolschon.biz">fox</a>
-     */
     public static class GnuCashAccountTreeEntry {
 
-        /**
-         * The account we represent.
-         */
+        // The account we represent
         private final GnuCashAccount myAccount;
 
-        /**
-         * @param anAccount The account we represent.
-         */
         public GnuCashAccountTreeEntry(final GnuCashAccount anAccount) {
             super();
             
@@ -128,16 +86,11 @@ public class GnuCashAccountsTreeModel implements TreeModel {
             
             myAccount = anAccount;
         }
-        /**
-         * @return The account we represent.
-         */
+
         public GnuCashAccount getAccount() {
             return myAccount;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public String toString() {
             String hidden = getAccount().getUserDefinedAttribute("hidden");
@@ -147,20 +100,14 @@ public class GnuCashAccountsTreeModel implements TreeModel {
             return getAccount().getName();
         }
 
-        /**
-         * The tree-nodes below us.
-         */
+        // The tree-nodes below us
         private volatile List<GnuCashAccountTreeEntry> childTreeNodes = null;
 
-        /**
-         * {@inheritDoc}
-         */
         public List<GnuCashAccountTreeEntry> getChildTreeNodes() {
-
-            if (childTreeNodes == null) {
+            if ( childTreeNodes == null ) {
                 Collection<? extends GnuCashAccount> c = getChildAccounts();
                 childTreeNodes = new ArrayList<GnuCashAccountTreeEntry>(c.size());
-                for (GnuCashAccount gnucashAccount : c) {
+                for ( GnuCashAccount gnucashAccount : c ) {
                     GnuCashAccount subaccount = gnucashAccount;
                     childTreeNodes.add(new GnuCashAccountTreeEntry(subaccount));
                 }
@@ -169,96 +116,50 @@ public class GnuCashAccountsTreeModel implements TreeModel {
             return childTreeNodes;
         }
 
-        /**
-         * @return See {@link GnuCashAccount#getChildren()}
-         */
         public Collection<? extends GnuCashAccount> getChildAccounts() {
             return myAccount.getChildren();
         }
     }
 
-    /**
-     * {@inheritDoc}
-     * @see javax.swing.tree.TreeModel#getRoot()
-     */
     public Object getRoot() {
         return rootEntry;
     }
 
-    /**
-     * {@inheritDoc}
-     * @see javax.swing.tree.TreeModel#getChildCount(java.lang.Object)
-     */
     public int getChildCount(final Object parent) {
         return ((GnuCashAccountTreeEntry) parent).getChildTreeNodes().size();
     }
 
-    /**
-     * {@inheritDoc}
-     * @see javax.swing.tree.TreeModel#isLeaf(java.lang.Object)
-     */
     public boolean isLeaf(final Object node) {
         return getChildCount(node) == 0;
     }
 
-
-    /**
-     * Our {@link TreeModelListener}s.
-     */
     private final Set<TreeModelListener> listeners = new HashSet<TreeModelListener>();
 
-    /**
-     * {@inheritDoc}
-     * @see javax.swing.tree.TreeModel#addTreeModelListener(javax.swing.event.TreeModelListener)
-     */
     public void addTreeModelListener(final TreeModelListener l) {
         listeners.add(l);
 
     }
 
-    /**
-     * {@inheritDoc}
-     * @see javax.swing.tree.TreeModel#removeTreeModelListener(javax.swing.event.TreeModelListener)
-     */
     public void removeTreeModelListener(final TreeModelListener l) {
         listeners.remove(l);
-
     }
 
-    /**
-     * {@inheritDoc}
-     * @see javax.swing.tree.TreeModel#getChild(java.lang.Object, int)
-     */
     public Object getChild(final Object parent, final int index) {
         return ((GnuCashAccountTreeEntry) parent).getChildTreeNodes().get(index);
     }
 
-    /**
-     * {@inheritDoc}
-     * @see javax.swing.tree.TreeModel#getIndexOfChild(java.lang.Object, java.lang.Object)
-     */
     public int getIndexOfChild(final Object parent, final Object child) {
         return ((GnuCashAccountTreeEntry) parent).getChildTreeNodes().indexOf(child);
     }
 
-    /**
-     * {@inheritDoc}
-     * @see javax.swing.tree.TreeModel#valueForPathChanged(javax.swing.tree.TreePath, java.lang.Object)
-     */
     public void valueForPathChanged(final TreePath path, final Object newValue) {
         // TODO unsupported
-
     }
 
-    /**
-     * @return The gnucash-file we work on.
-     */
     public GnuCashFile getFile() {
         return rootEntry.getFile();
     }
-    /**
-     * @param file The gnucash-file we work on.
-     */
+
     public void setFile(final GnuCashFile file) {
         if (file == null) {
             throw new IllegalArgumentException("argument <file> is null");
@@ -269,16 +170,10 @@ public class GnuCashAccountsTreeModel implements TreeModel {
         fireTreeStructureChanged(getPathToRoot());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected TreePath getPathToRoot() {
-     return new TreePath(getRoot());
+    	return new TreePath(getRoot());
     }
 
-    /**
-     * @param path the path to inform our {@link TreeModelListener}s about.
-     */
     protected void fireTreeStructureChanged(final TreePath path) {
 		TreeModelEvent evt = new TreeModelEvent( this, path );
 

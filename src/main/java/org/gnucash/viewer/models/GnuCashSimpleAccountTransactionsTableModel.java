@@ -17,10 +17,19 @@ import org.gnucash.api.read.GnuCashAccount;
 import org.gnucash.api.read.GnuCashTransactionSplit;
 import org.gnucash.base.basetypes.complex.GCshCmdtyCurrID;
 
-/**
- * A TableModel that shows the transaction and balance of an Account.
+/*
+ * A Table model that shows the transaction and balance of an Account.
  */
 public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransactionsSplitsTableModel {
+	
+	enum TableCols {
+		DATE,
+		TRANSACTION,
+		DESCRIPTION,
+		PLUS,
+		MINUS,
+		BALANCE
+	}
 
 	// The account the transactions of which we are showing.
 	private final GnuCashAccount account;
@@ -123,59 +132,49 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 
 			updateCurrencyFormat(split);
 
-			switch (columnIndex) {
-				case 0: { // date
-					return split.getTransaction().getDatePostedFormatted();
+			if ( columnIndex == TableCols.DATE.ordinal() ) {
+				return split.getTransaction().getDatePostedFormatted();
+			} else if ( columnIndex == TableCols.TRANSACTION.ordinal() ) {
+				String desc = split.getTransaction().getDescription();
+				if (desc == null || desc.trim().length() == 0) {
+					return "";
 				}
-				case 1: { // transaction
-					String desc = split.getTransaction().getDescription();
-					if (desc == null || desc.trim().length() == 0) {
-						return "";
-					}
-					return desc;
+				return desc;
+			} else if ( columnIndex == TableCols.DESCRIPTION.ordinal() ) {
+				String desc = split.getDescription();
+				if (desc == null || desc.trim().length() == 0) {
+					return "";
 				}
-				case 2: { // description
-					String desc = split.getDescription();
-					if (desc == null || desc.trim().length() == 0) {
-						return "";
-					}
-					return desc;
+				return desc;
+			} else if ( columnIndex == TableCols.PLUS.ordinal() ) {
+				if ( split.getQuantity().isPositive() ) {
+					//                  //T O D O: use default-currency here
+					//                  if (account != null && !account.getCurrencyID().equals("EUR")) {
+					//                      return split.getValueFormatet();
+					//                  }
+					return currencyFormat.format(split.getQuantity());
+				} else {
+					return "";
 				}
-				case 3: { // +
-					if ( split.getQuantity().isPositive() ) {
-						//                  //T O D O: use default-currency here
-						//                  if (account != null && !account.getCurrencyID().equals("EUR")) {
-						//                      return split.getValueFormatet();
-						//                  }
-						return currencyFormat.format(split.getQuantity());
-					} else {
-						return "";
-					}
+			} else if ( columnIndex == TableCols.MINUS.ordinal() ) {
+				if ( ! split.getQuantity().isPositive() ) {
+					//                    if (account != null && !account.getCurrencyID().equals("EUR")) {
+					//                        return split.getValueFormatet();
+					//                    }
+					return currencyFormat.format(split.getQuantity());
+				} else {
+					return "";
 				}
-				case 4: { // -
-					if ( ! split.getQuantity().isPositive() ) {
-						//                    if (account != null && !account.getCurrencyID().equals("EUR")) {
-						//                        return split.getValueFormatet();
-						//                    }
-						return currencyFormat.format(split.getQuantity());
-					} else {
-						return "";
-					}
+			} else if ( columnIndex == TableCols.BALANCE.ordinal() ) {
+				if ( account != null ) {
+					return currencyFormat.format(account.getBalance(split));
+				} else {
+					return currencyFormat.format(split.getAccount().getBalance(split));
 				}
-				case 5: { // balance
-					if ( account != null ) {
-						return currencyFormat.format(account.getBalance(split));
-					} else {
-						return currencyFormat.format(split.getAccount().getBalance(split));
-					}
-				}
-				default:
-					throw new IllegalArgumentException("illegal column index " + columnIndex);
+			} else {
+				throw new IllegalArgumentException("illegal column index " + columnIndex);
 			}
-
-		}
-		catch (Exception x) {
-
+		} catch (Exception x) {
 			String message = "Internal Error in "
 					+ getClass().getName() + ":getValueAt(int rowIndex="
 					+ rowIndex
@@ -201,7 +200,7 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 			return "ERROR";
 		}
 	}
-
+	
 	/**
 	 * @param split the split whos account to use for the currency
 	 */
@@ -224,14 +223,14 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 	 * {@inheritDoc}
 	 */
 	public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
-
+		// ::EMPTY
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public String getColumnName(final int columnIndex) {
-		return defaultColumnNames[columnIndex]; //TODO: l10n
+		return defaultColumnNames[columnIndex];
 	}
 
 	/**

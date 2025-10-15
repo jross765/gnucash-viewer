@@ -16,10 +16,23 @@ import javax.swing.event.TableModelListener;
 import org.gnucash.api.read.GnuCashTransactionSplit;
 import org.gnucash.base.basetypes.complex.GCshCmdtyCurrID;
 
-/**
- * A TableModel that shows a given list of transaction.
+/*
+ * A Table model that shows a given list of transaction.
  */
 public class GnuCashSimpleTransactionSplitsTableModel implements GnuCashTransactionsSplitsTableModel {
+	
+	// CAUTION: This enum is on purpose redundant to the one
+	// in GnuCashSimpleAccountTransactionsTableModel.
+	// The two are, admittedly, *almost* identical, but
+	// *not entirely*, and this, in part, is "by chance",
+	// so to speak.
+	enum TableCols {
+		DATE,
+		TRANSACTION,
+		DESCRIPTION,
+		PLUS,
+		MINUS
+	}
 
     private final List<? extends GnuCashTransactionSplit> mySplits;
 
@@ -124,54 +137,45 @@ public class GnuCashSimpleTransactionSplitsTableModel implements GnuCashTransact
 
             updateCurrencyFormat(split);
 
-            switch(columnIndex) {
-            case 0: { // date
+            if ( columnIndex == TableCols.DATE.ordinal() ) {
 				return split.getTransaction().getDatePostedFormatted();
-            }
-            case 1: { // transaction
+            } else if ( columnIndex == TableCols.TRANSACTION.ordinal() ) {
                 String desc = split.getTransaction().getDescription();
                 if ( desc == null || 
                 	 desc.trim().length() == 0 ) {
                     return "";
                 }
                 return desc;
-            }
-            case 2: { // description
+            } else if ( columnIndex == TableCols.DESCRIPTION.ordinal() ) {
                 String desc = split.getDescription();
                 if ( desc == null || 
                 	 desc.trim().length() == 0 ) {
                     return "";
                 }
                 return desc;
-            }
-            case 3: { // +
-              if ( split.getQuantity().isPositive() ) {
+            } else if ( columnIndex == TableCols.PLUS.ordinal() ) {
+            	if ( split.getQuantity().isPositive() ) {
 //                  //T O D O: use default-currency here
 //                  if (account != null && !account.getCurrencyID().equals("EUR")) {
 //                      return split.getValueFormatet();
 //                  }
-               return currencyFormat.format(split.getQuantity());
-              } else {
-                return "";
-            }
-            }
-            case 4: { // -
+            		return currencyFormat.format(split.getQuantity());
+            	} else {
+            		return "";
+            	}
+            } else if ( columnIndex ==  TableCols.MINUS.ordinal() ) {
                 if ( ! split.getQuantity().isPositive() ) {
 //                    if (account != null && !account.getCurrencyID().equals("EUR")) {
 //                        return split.getValueFormatet();
 //                    }
-                 return currencyFormat.format(split.getQuantity());
+                	return currencyFormat.format(split.getQuantity());
                 } else {
                     return "";
                 }
-              }
-            default:
+            } else {
                 throw new IllegalArgumentException("illegal columnIndex " + columnIndex);
             }
-
-
         } catch (Exception x) {
-
             String message = "Internal Error in "
                 + getClass().getName() + ":getValueAt(int rowIndex="
                 + rowIndex
@@ -219,14 +223,14 @@ public class GnuCashSimpleTransactionSplitsTableModel implements GnuCashTransact
      * {@inheritDoc}
      */
     public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
-
+    	// ::EMPTY
     }
 
     /**
      * {@inheritDoc}
      */
     public String getColumnName(final int columnIndex) {
-        return defaultColumnNames[columnIndex]; //TODO: l10n
+        return defaultColumnNames[columnIndex];
     }
 
     /**

@@ -4,14 +4,11 @@ import javax.swing.Action;
 
 import org.gnucash.api.read.GnuCashTransactionSplit;
 
-/**
- * Action that can be executed on a {@link GnuCashTransactionSplit}
+/*
+ * Action that can be executed on a GnuCashTransactionSplit
  */
 public interface TransactionSplitAction extends Action {
 
-    /**
-     * Set the split this action works on.
-     * @param aSplit the split to work.
-     */
+    // Set the split this action works on.
     void setSplit(final GnuCashTransactionSplit aSplit);
 }
