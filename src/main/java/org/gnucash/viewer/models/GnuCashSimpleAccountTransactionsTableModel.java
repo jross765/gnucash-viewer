@@ -20,7 +20,7 @@ import org.gnucash.base.basetypes.complex.GCshCmdtyCurrID;
 /*
  * A Table model that shows the transaction and balance of an Account.
  */
-public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransactionsSplitsTableModel {
+public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransactionSplitsTableModel {
 	
 	enum TableCols {
 		DATE,

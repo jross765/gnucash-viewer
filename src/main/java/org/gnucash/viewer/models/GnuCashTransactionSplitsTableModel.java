@@ -11,7 +11,7 @@ import org.gnucash.api.read.GnuCashTransactionSplit;
  * Table models implementing this interface contain a list of transactions.
  * They may be all transactions of an account, a search-result or s.t. similar.
  */
-public interface GnuCashTransactionsSplitsTableModel extends TableModel {
+public interface GnuCashTransactionSplitsTableModel extends TableModel {
 
     /**
      * Get the number of transactons.

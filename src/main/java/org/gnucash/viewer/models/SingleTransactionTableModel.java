@@ -14,12 +14,11 @@ import javax.swing.event.TableModelListener;
 import org.gnucash.api.Const;
 import org.gnucash.api.read.GnuCashTransaction;
 import org.gnucash.api.read.GnuCashTransactionSplit;
-import org.gnucash.viewer.panels.Messages_SingleTransactionTableModel;
 
 /*
  * TableModel to show and edit the splits and details of a single transaction.
  */
-public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTableModel {
+public class SingleTransactionTableModel implements GnuCashTransactionSplitsTableModel {
 	
 	enum TableCols {
 		DATE,
@@ -59,9 +58,10 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 			return false;
 		}
 
-		for ( GnuCashTransactionSplit split : getTransaction().getSplits() ) {
-			if ( ! split.getAccount().getCmdtyCurrID().getNameSpace().equals(getTransaction().getCmdtyCurrID().getNameSpace()) || 
-				 ! split.getAccount().getCmdtyCurrID().equals(getTransaction().getCmdtyCurrID()) ) {
+		for ( GnuCashTransactionSplit splt : getTransaction().getSplits() ) {
+			if ( splt.getAccount().getCmdtyCurrID().getType() != getTransaction().getCmdtyCurrID().getType() ||
+				 ! splt.getAccount().getCmdtyCurrID().getNameSpace().equals(getTransaction().getCmdtyCurrID().getNameSpace()) || 
+				 ! splt.getAccount().getCmdtyCurrID().equals(getTransaction().getCmdtyCurrID()) ) {
 				return true;
 			}
 		}
@@ -128,7 +128,7 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 				if ( columnIndex == TableCols.DATE.ordinal() )
 					return getTransaction().getDatePostedFormatted();
 				else if ( columnIndex == TableCols.ACTION.ordinal() )
-					return getTransactionNumber(); // sic
+					return getTransactionNumber(); // ::TODO: sic? / CHECK
 				else if ( columnIndex == TableCols.DESCRIPTION.ordinal() )
 					return getTransactionDescription();
 				else if ( columnIndex == TableCols.ACCOUNT.ordinal() )
@@ -141,43 +141,45 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 					throw new IllegalArgumentException("illegal column index " + columnIndex);
 			}
 
-			GnuCashTransactionSplit split = getTransactionSplit(rowIndex - 1);
+			GnuCashTransactionSplit splt = getTransactionSplit(rowIndex - 1);
 
 			if ( columnIndex == TableCols.DATE.ordinal() ) {
-				return split.getTransaction().getDatePostedFormatted();
+				return splt.getTransaction().getDatePostedFormatted();
 			} else if ( columnIndex == TableCols.ACTION.ordinal() ) {
-				String action = split.getActionStr();
+				String action = splt.getActionStr();
 				if ( action == null || 
 					 action.trim().length() == 0 ) {
 					return "";
 				}
 				return action;
 			} else if ( columnIndex == TableCols.DESCRIPTION.ordinal() ) {
-				String desc = split.getDescription();
+				String desc = splt.getDescription();
 				if ( desc == null || 
 					 desc.trim().length() == 0 ) {
 					return "";
 				}
 				return desc;
 			} else if ( columnIndex == TableCols.ACCOUNT.ordinal() ) {
-				return split.getAccount().getQualifiedName();
+				return splt.getAccount().getQualifiedName();
 			} else if ( columnIndex == TableCols.PLUS.ordinal() ) {
-				if ( split.getValue().isPositive() ) {
-					if ( split.getAccount().getCmdtyCurrID().getNameSpace().equals(getTransaction().getCmdtyCurrID().getNameSpace()) && 
-						 split.getAccount().getCmdtyCurrID().equals(getTransaction().getCmdtyCurrID()) ) {
-						return split.getValueFormatted();
+				if ( splt.getValue().isPositive() ) {
+					if ( splt.getAccount().getCmdtyCurrID().getType() == getTransaction().getCmdtyCurrID().getType() && 
+						 splt.getAccount().getCmdtyCurrID().getNameSpace().equals(getTransaction().getCmdtyCurrID().getNameSpace()) && 
+						 splt.getAccount().getCmdtyCurrID().equals(getTransaction().getCmdtyCurrID()) ) {
+						return splt.getValueFormatted();
 					}
-					return split.getValueFormatted() + " (" + split.getQuantityFormatted() + ")";
+					return splt.getValueFormatted() + " (" + splt.getQuantityFormatted() + ")";
 				} else {
 					return "";
 				}
 			} else if ( columnIndex == TableCols.MINUS.ordinal() ) {
-				if ( ! split.getValue().isPositive() ) {
-					if ( split.getAccount().getCmdtyCurrID().getNameSpace().equals(getTransaction().getCmdtyCurrID().getNameSpace()) && 
-						 split.getAccount().getCmdtyCurrID().equals(getTransaction().getCmdtyCurrID()) ) {
-						return split.getValueFormatted();
+				if ( ! splt.getValue().isPositive() ) {
+					if ( splt.getAccount().getCmdtyCurrID().getType() == getTransaction().getCmdtyCurrID().getType() && 
+						 splt.getAccount().getCmdtyCurrID().getNameSpace().equals(getTransaction().getCmdtyCurrID().getNameSpace()) && 
+						 splt.getAccount().getCmdtyCurrID().equals(getTransaction().getCmdtyCurrID()) ) {
+						return splt.getValueFormatted();
 					}
-					return split.getValueFormatted() + " (" + split.getQuantityFormatted() + ")";
+					return splt.getValueFormatted() + " (" + splt.getQuantityFormatted() + ")";
 				} else {
 					return "";
 				}
@@ -234,7 +236,7 @@ public class SingleTransactionTableModel implements GnuCashTransactionsSplitsTab
 	}
 
 	public String getColumnName(final int columnIndex) {
-		return defaultColumnNames[columnIndex]; //TODO: l10n
+		return defaultColumnNames[columnIndex];
 	}
 
 	public void addTableModelListener(final TableModelListener l) {

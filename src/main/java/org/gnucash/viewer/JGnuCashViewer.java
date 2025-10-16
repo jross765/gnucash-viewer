@@ -635,7 +635,7 @@ public class JGnuCashViewer extends JFrame {
 			mySplitActions.add(new OpenAccountInNewTab(getJTabbedPane()));
 			mySplitActions.add(new OpenAccountInNewWindow());
 		}
-		LOGGER.info("getSplitActions: JGnuCashViewer has " + (mySplitActions == null ? "no" : mySplitActions.size()) + " split-actions");
+		LOGGER.debug("getSplitActions: JGnuCashViewer has " + (mySplitActions == null ? "no" : mySplitActions.size()) + " split-actions");
 		return mySplitActions;
 	}
 

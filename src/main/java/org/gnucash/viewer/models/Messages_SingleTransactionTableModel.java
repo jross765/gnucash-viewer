@@ -1,4 +1,4 @@
-package org.gnucash.viewer.panels;
+package org.gnucash.viewer.models;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;

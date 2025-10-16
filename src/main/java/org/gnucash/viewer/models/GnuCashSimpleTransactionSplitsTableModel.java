@@ -19,7 +19,7 @@ import org.gnucash.base.basetypes.complex.GCshCmdtyCurrID;
 /*
  * A Table model that shows a given list of transaction.
  */
-public class GnuCashSimpleTransactionSplitsTableModel implements GnuCashTransactionsSplitsTableModel {
+public class GnuCashSimpleTransactionSplitsTableModel implements GnuCashTransactionSplitsTableModel {
 	
 	// CAUTION: This enum is on purpose redundant to the one
 	// in GnuCashSimpleAccountTransactionsTableModel.
