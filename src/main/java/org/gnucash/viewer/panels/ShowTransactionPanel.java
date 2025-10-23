@@ -47,7 +47,7 @@ public class ShowTransactionPanel extends JPanel {
 	/**
 	 * for serializing.
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 9006255853615066626L;
 
 	/**
 	 * The transaction we are showing.
