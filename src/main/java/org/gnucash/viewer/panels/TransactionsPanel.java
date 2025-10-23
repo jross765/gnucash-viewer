@@ -142,7 +142,7 @@ public class TransactionsPanel extends JPanel {
 		}
 
 //		getTransactionTable().getColumn(Messages_TransactionsPanel.getString("TransactionsPanel.2")).setMaxWidth(
-//				SwingUtilities.computeStringWidth(metrics, KMyMoneySimpleAccountTransactionsTableModel.dateFormat.format(LocalDateTime.now())) + Const.TABLE_COL_WIDTH_TOL);
+//				SwingUtilities.computeStringWidth(metrics, GnuCashSimpleAccountTransactionsTableModel.dateFormat.format(LocalDateTime.now())) + Const.TABLE_COL_WIDTH_TOL);
 		getTransactionTable().getColumn(Messages_TransactionsPanel.getString("TransactionsPanel.2")).setMaxWidth(Const.TABLE_COL_MAX_WIDTH); //$NON-NLS-1$
 //		getTransactionTable().getColumn(Messages_TransactionsPanel.getString("TransactionsPanel.6")).setMaxWidth(Const.PANEL_MAX_WIDTH); //$NON-NLS-1$
 //		getTransactionTable().getColumn(Messages_TransactionsPanel.getString("TransactionsPanel.7")).setMaxWidth(Const.PANEL_MAX_WIDTH); //$NON-NLS-1$
