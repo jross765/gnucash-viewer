@@ -15,6 +15,16 @@ XML-based files.
 * Under normal circumstances, you cannot compile it on its own (at least not without further preparation), but instead, you should clone it together with the other repos and use the parent repo's build-script.
 
 ## Major Changes 
+### V. 1.1 &rarr; 1.2
+* Viewer can now be started with command line options:
+    * With account ID: Will open new window with according account immediatly after start.
+    * With transaction split ID (or alternatively: account ID and transaction ID): Will open new window with according account immediatly after start (as above with account-ID only), and in addition to that
+mark the according transaction (split).
+
+* Fixed a few small bugs.
+
+* A couple of minor improvements, both on the surface and under the hood.
+
 ### V. 1.1
 * Re-defined scope:
   * Removed everything used for editing -- this is called a viewer, and it shall be one -- and *only* a viewer.
@@ -46,10 +56,6 @@ Version tag by current maintainer.
 
 ## Planned
 
-* Starting GUI with a specific account's or transaction's ID (and the viewer showing the according panel immediately).
-
-  Analogously with all other entities that may be supported in future (cf. below).
-
 * Copy marked object's ID into clipboard (context menu).
 
 * Marking / rendering transactions by more general / flexible rules; extracting stuff like the "TODO" word into config files.
@@ -64,6 +70,8 @@ Version tag by current maintainer.
   * Customers / vendors / employees / jobs
   * Customer invoices / vendor bills / employee vouchers
   * Prices (low priority)
+
+* Starting GUI with above-mentioned new entities, the viewer showing the according panel immediately (analogous to accounts, transactions and transaction splits).
 
 ## Scope
 The current author/maintainer has made some important decisions on this module's scope, design and design/future development in this project
@@ -189,6 +197,6 @@ The only aggregations supported are the ones defined by the account hierarchy.
 
 ## Known Issues
 
-Veeery slow -- it takes some 30 s or so to load a larger real-life file (not the viewer itself, in fact, but the underlying API). 
+A bit slow -- it takes some 40 s or so to load the current maintainer's personal finance file (not the viewer itself, in fact, but the underlying API). 
 
-This, in the current maintainer's opinion, is not so important for CLI based tools (cf. module "Tools"), and only partly relevant for a GUI (it takes long to load a file, but once it is loaded, e.t. runs fast and smoothly); but the above-mentioned calls for specific accounts / transactions (planned) would only partially make sense in a real-world scenario.
+This, in the current maintainer's opinion, is not so important for CLI based tools (cf. module "Tools"), and only partly relevant for a GUI (it takes long to load a file, but once it is loaded, e.t. runs fast and smoothly); but calls for specific accounts / transaction (splits) (introduced in V. 1.2) only partially make sense in a real-world scenario; few persons will be willing to wait that long for "quick glimpse".
