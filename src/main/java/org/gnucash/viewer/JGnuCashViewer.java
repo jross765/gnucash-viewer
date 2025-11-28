@@ -41,9 +41,22 @@ import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.help.HelpFormatter;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.gnucash.api.read.GnuCashAccount;
 import org.gnucash.api.read.GnuCashFile;
+import org.gnucash.api.read.GnuCashTransaction;
+import org.gnucash.api.read.GnuCashTransactionSplit;
 import org.gnucash.api.read.impl.GnuCashFileImpl;
+import org.gnucash.base.basetypes.simple.GCshAcctID;
+import org.gnucash.base.basetypes.simple.GCshSpltID;
+import org.gnucash.base.basetypes.simple.GCshTrxID;
 import org.gnucash.viewer.actions.AccountAction;
 import org.gnucash.viewer.actions.OpenAccountInNewTab;
 import org.gnucash.viewer.actions.OpenAccountInNewWindow;
@@ -53,16 +66,46 @@ import org.gnucash.viewer.panels.TransactionsPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import xyz.schnorxoborx.base.cmdlinetools.CouldNotExecuteException;
+import xyz.schnorxoborx.base.cmdlinetools.InvalidCommandLineArgsException;
+
 /**
  * Simple Viewer for GnuCash files.
  */
 @SuppressWarnings("serial")
 public class JGnuCashViewer extends JFrame {
+	
+	enum StartMode {
+		REGULAR,
+		OPEN_ACCOUNT,
+		OPEN_ACCOUNT_TRANSACTION,
+		OPEN_ACCOUNT_TRANSACTION_SPLIT
+	}
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(JGnuCashViewer.class);
+
+	// ---------------------------------------------------------------
 
 	private static final String TITLE = "JGnuCash Viewer";
 
 	private static final int DEFAULT_WIDTH  = 750;
 	private static final int DEFAULT_HEIGHT = 600;
+	
+	private static final double DIVIDER_RATIO = 0.3;
+
+	// ---------------------------------------------------------------
+	// Command line args
+	
+	// private static PropertiesConfiguration cfg = null;
+	private static Options options;
+	  
+	private static String          gcshFileName = null;
+	private static StartMode       startMode    = null;
+	private static GCshAcctID      acctID       = null;
+	private static GCshTrxID       trxID        = null;
+	private static GCshSpltID      spltID       = null;
+
+	// ---------------------------------------------------------------
 
 	/**
 	 * Wrapper for an {@link AccountAction} that knows about {@link JGnuCashViewer#getSelectedAccount()}.
@@ -94,8 +137,7 @@ public class JGnuCashViewer extends JFrame {
 			try {
 				myAccountAction.setAccount(getSelectedAccount());
 				return myAccountAction.isEnabled();
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				LOGGER.error("isEnabled: Cannot query isEnabled for AccountAction", e);
 				return false;
 			}
@@ -121,8 +163,7 @@ public class JGnuCashViewer extends JFrame {
 			try {
 				myAccountAction.setAccount(getSelectedAccount());
 				myAccountAction.actionPerformed(aE);
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				LOGGER.error("actionPerformed: Cannot execute AccountAction", e);
 			}
 		}
@@ -134,11 +175,8 @@ public class JGnuCashViewer extends JFrame {
 			return myAccountAction;
 		}
 	}
-
-	/**
-	 * Our logger for debug- and error-output.
-	 */
-	private static final Logger LOGGER = LoggerFactory.getLogger(JGnuCashViewer.class);
+	
+	// ---------------------------------------------------------------
 
 	private GnuCashFile myModel;
 
@@ -198,18 +236,256 @@ public class JGnuCashViewer extends JFrame {
 	 */
 	private Collection<TransactionSplitAction> mySplitActions;
 
+	// ---------------------------------------------------------------
+
 	/**
-	 * @param args empty or contains a gnucash-file-name as a first param.
+	 * This method initializes
+	 * the KMyMoneyViewer.
 	 */
-	public static void main(final String[] args) {
-		JGnuCashViewer ste = new JGnuCashViewer();
-		installNimbusLaF();
-		ste.initializeGUI();
-		ste.setVisible(true);
-		if (args.length > 0) {
-			ste.loadFile(new File(args[0]));
+	public JGnuCashViewer() {
+		super();
+	}
+
+	// ---------------------------------------------------------------
+
+	public static void main( final String[] args ) {
+		try {
+			JGnuCashViewer viewer = new JGnuCashViewer();
+			viewer.execute( args );
+		} catch ( CouldNotExecuteException exc ) {
+			System.err.println( "Execution exception. Aborting." );
+			exc.printStackTrace();
+			System.exit( 1 );
 		}
-		ste.getJSplitPane().setDividerLocation(0.3);
+	}
+
+	public void execute(String[] args) throws CouldNotExecuteException {
+		// Initialize
+		try {
+			init();
+		} catch ( Exception exc ) {
+			System.err.println( "Could not initialize environment." );
+			exc.printStackTrace();
+			throw new CouldNotExecuteException();
+		}
+
+		// Parse command line
+		try	{
+			parseCommandLineArgs( args );
+		} catch ( Exception exc ) {
+			System.err.println( "Invalid command line args." );
+			printUsage();
+			throw new CouldNotExecuteException();
+		}
+
+		try	{
+			kernel();
+		} catch ( Exception exc ) {
+			System.err.println( "Error in Tool kernel." );
+			exc.printStackTrace();
+			throw new CouldNotExecuteException();
+		}
+	}
+
+	protected void kernel() throws Exception {
+		// GnuCashFileImpl kmmFile = new GnuCashFileImpl( new File( kmmFileName ) );
+
+		installNimbusLaF();
+		initializeGUI();
+		setVisible(true);
+		loadFile(new File(gcshFileName));
+		getJSplitPane().setDividerLocation(DIVIDER_RATIO);
+		
+		if ( startMode == StartMode.OPEN_ACCOUNT ) {
+			GnuCashAccount acct = myModel.getAccountByID( acctID );
+			LOGGER.debug( "kernel: Found account: " + acct);
+			LOGGER.debug( "kernel: Opening new account window with account " + acctID);
+			// https://learn-it-university.com/manually-invoking-actions-in-swing-a-step-by-step-guide/
+			Action customAction = new OpenAccountInNewWindow(acct);
+			ActionEvent manualEvent = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "manualInvocation");
+			customAction.actionPerformed(manualEvent);
+		} else if ( startMode == StartMode.OPEN_ACCOUNT_TRANSACTION ) {
+			GnuCashTransaction trx = myModel.getTransactionByID( trxID );
+			LOGGER.debug( "kernel: Found transaction: " + trx);
+			GnuCashTransactionSplit splt = myModel.getTransactionSplitByAcctIDAndTrxID( acctID, trxID );
+			LOGGER.debug( "kernel: Found transaction split: " + splt);
+			LOGGER.debug( "kernel: Opening new account window with account " + acctID + " and transaction " + trxID + " and split " + splt.getID());
+			// https://learn-it-university.com/manually-invoking-actions-in-swing-a-step-by-step-guide/
+			Action customAction = new OpenAccountInNewWindow(splt, false);
+			ActionEvent manualEvent = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "manualInvocation");
+			customAction.actionPerformed(manualEvent);
+		} else if ( startMode == StartMode.OPEN_ACCOUNT_TRANSACTION_SPLIT ) {
+			GnuCashTransactionSplit splt = myModel.getTransactionSplitByID( spltID );
+			LOGGER.debug( "kernel: Found transaction split: " + splt);
+			LOGGER.debug( "kernel: Opening new account window with acount " + splt.getAccountID() + " and transaction " + splt.getTransactionID() + " and split " + spltID);
+			// https://learn-it-university.com/manually-invoking-actions-in-swing-a-step-by-step-guide/
+			Action customAction = new OpenAccountInNewWindow(splt, true);
+			ActionEvent manualEvent = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "manualInvocation");
+			customAction.actionPerformed(manualEvent);
+		}
+	}
+	
+	// ---------------------------------------------------------------
+	
+	protected void init() throws Exception {
+		acctID       = new GCshAcctID();
+		trxID        = new GCshTrxID();
+		spltID       = new GCshSpltID();
+
+//	    cfg = new PropertiesConfiguration(System.getProperty("config"));
+//	    getConfigSettings(cfg);
+
+		// Options
+		// The essential ones
+		Option optFile = Option.builder( "f" )
+				.required()
+				.hasArg()
+				.argName( "file" )
+				.desc( "GnuCash file" )
+				.longOpt( "gnucash-file" )
+				.get();
+
+		// The convenient ones
+	    Option optAcctID = Option.builder("acct")
+	    		.hasArg()
+	    		.argName("acctid")
+	    		.desc("Account-ID")
+	    		.longOpt("account-id")
+	    		.get();
+		
+	    Option optTrxID = Option.builder("trx")
+	    		.hasArg()
+	    		.argName("trxid")
+	    		.desc("Transaction-ID")
+	    		.longOpt("transaction-id")
+	    		.get();
+		
+	    Option optSpltID = Option.builder("splt")
+	    		.hasArg()
+	    		.argName("spltid")
+	    		.desc("Transaction split-ID")
+	    		.longOpt("split-id")
+	    		.get();
+		
+
+		options = new Options();
+		options.addOption( optFile );
+		options.addOption( optAcctID );
+		options.addOption( optTrxID );
+		options.addOption( optSpltID );
+	}
+
+	protected void getConfigSettings(PropertiesConfiguration cs) throws Exception {
+		// ::EMPTY
+	}
+
+	protected void parseCommandLineArgs(String[] args) throws InvalidCommandLineArgsException {
+		CommandLineParser parser = new DefaultParser();
+		CommandLine cmdLine = null;
+		try {
+			cmdLine = parser.parse( options, args );
+		} catch ( ParseException exc ) {
+			System.err.println( "Parsing options failed. Reason: " + exc.getMessage() );
+			throw new InvalidCommandLineArgsException();
+		}
+
+		// ---
+
+		// <gnucash-file>
+		try {
+			gcshFileName = cmdLine.getOptionValue( "gnucash-file" );
+		} catch ( Exception exc ) {
+			System.err.println( "Could not parse <gnucash-file>" );
+			throw new InvalidCommandLineArgsException();
+		}
+
+		System.err.println( "GnuCash file:      '" + gcshFileName + "'" );
+		
+		// --
+		
+		startMode = StartMode.REGULAR; // not final, it's just the start point 
+		
+		// --
+
+	    // <account-id>
+	    if ( cmdLine.hasOption("account-id") ) {
+	    	if ( startMode != StartMode.REGULAR ) {
+	    		System.err.println("<account-id> cannot be set because another ID has already been set");
+	    		throw new InvalidCommandLineArgsException();
+	    	}
+//	      if ( mode != Helper.Mode.ID ) {
+//	        System.err.println("<account-id> must only be set with <mode> = '" + Helper.Mode.ID.toString() + "'");
+//	        throw new InvalidCommandLineArgsException();
+//	      }
+	      
+	      try {
+	        acctID = new GCshAcctID( cmdLine.getOptionValue("account-id") );
+	        startMode = StartMode.OPEN_ACCOUNT;
+	      } catch ( Exception exc ) {
+	        System.err.println("Could not parse <account-id>");
+	        throw new InvalidCommandLineArgsException();
+	      }
+	    } else {
+//	      if ( mode == Helper.Mode.ID ) {
+//	        System.err.println("<account-id> must be set with <mode> = '" + Helper.Mode.ID.toString() + "'");
+//	        throw new InvalidCommandLineArgsException();
+//	      }
+	    	int dummy = 0;
+	    }
+	    
+	    System.err.println("Account ID:         " + acctID);
+	    
+	    // <transaction-id>
+	    if ( cmdLine.hasOption("transaction-id") ) {
+	    	if ( startMode != StartMode.REGULAR &&
+	    		 startMode != StartMode.OPEN_ACCOUNT ) {
+	    		System.err.println("<transaction-id> cannot be set because another ID has already been set");
+	    		throw new InvalidCommandLineArgsException();
+	    	}
+	      
+	    	try {
+	    		trxID = new GCshTrxID(  cmdLine.getOptionValue("transaction-id") );
+	    		startMode = StartMode.OPEN_ACCOUNT_TRANSACTION; 
+	    	} catch ( Exception exc ) {
+	    		System.err.println("Could not parse <transaction-id>");
+	    		throw new InvalidCommandLineArgsException();
+	    	}
+	    }
+	    
+	    System.err.println("Transaction ID:     " + trxID);
+	    
+	    // <split-id>
+	    if ( cmdLine.hasOption("split-id") ) {
+	    	if ( startMode != StartMode.REGULAR ) {
+	    		System.err.println("<split-id> cannot be set because another ID has already been set");
+	    		throw new InvalidCommandLineArgsException();
+	    	}
+	      
+	    	try {
+	    		spltID = new GCshSpltID( cmdLine.getOptionValue("split-id") );
+	    		startMode = StartMode.OPEN_ACCOUNT_TRANSACTION_SPLIT;
+	    	} catch ( Exception exc ) {
+	    		System.err.println("Could not parse <split-id>");
+	    		throw new InvalidCommandLineArgsException();
+	    	}
+	    }
+	    
+	    System.err.println("Split ID:           " + spltID);
+	    
+	    // ---
+	    
+	    System.err.println("Start mode:         " + startMode);
+	}
+
+	protected void printUsage()
+	{
+		HelpFormatter formatter = HelpFormatter.builder().get();
+		try {
+			formatter.printHelp( "JGnuCashViewer", "", options, "", true );
+		} catch ( IOException e ) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	protected static void installNimbusLaF() {
@@ -219,14 +495,6 @@ public class JGnuCashViewer extends JFrame {
 		catch (UnsupportedLookAndFeelException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
-	}
-
-	/**
-	 * This method initializes
-	 * the GnuCashViewer.
-	 */
-	public JGnuCashViewer() {
-		super();
 	}
 
 	/**
@@ -240,6 +508,7 @@ public class JGnuCashViewer extends JFrame {
 			jSplitPane.setLeftComponent(getTreeScrollPane());
 			jSplitPane.setRightComponent(getJTabbedPane());
 		}
+		
 		return jSplitPane;
 	}
 
@@ -257,6 +526,7 @@ public class JGnuCashViewer extends JFrame {
 			} else {
 				accountsTree.setModel(new GnuCashAccountsTreeModel(getModel()));
 			}
+			
 			accountsTree.addMouseListener(new MouseAdapter() {
 
 				/** show popup if mouseReleased is a popupTrigger on this platform.
@@ -297,6 +567,7 @@ public class JGnuCashViewer extends JFrame {
 			});
 
 		}
+		
 		return accountsTree;
 	}
 
@@ -310,6 +581,7 @@ public class JGnuCashViewer extends JFrame {
 			myTabbedPane = new JTabbedPane();
 			myTabbedPane.addTab(Messages_JGnuCashViewer.getString("JGnuCashViewer.1"), getTransactionsPanel());
 		}
+		
 		return myTabbedPane;
 	}
 
@@ -323,6 +595,7 @@ public class JGnuCashViewer extends JFrame {
 			transactionsPanel = new TransactionsPanel();
 			transactionsPanel.setSplitActions(getSplitActions());
 		}
+		
 		return transactionsPanel;
 	}
 
@@ -362,6 +635,7 @@ public class JGnuCashViewer extends JFrame {
 			jJMenuBar = new JMenuBar();
 			jJMenuBar.add(getFileMenu());
 		}
+		
 		return jJMenuBar;
 	}
 
@@ -379,6 +653,7 @@ public class JGnuCashViewer extends JFrame {
 			myFileMenu.add(new JSeparator());
 			myFileMenu.add(getFileExitMenuItem());
 		}
+		
 		return myFileMenu;
 	}
 
@@ -399,6 +674,7 @@ public class JGnuCashViewer extends JFrame {
 				}
 			});
 		}
+		
 		return myFileLoadMenuItem;
 	}
 
@@ -418,6 +694,7 @@ public class JGnuCashViewer extends JFrame {
 				}
 			});
 		}
+		
 		return myFileExitMenuItem;
 	}
 
@@ -436,6 +713,7 @@ public class JGnuCashViewer extends JFrame {
 					border, border, border, border));
 			jContentPane.add(getJSplitPane(), java.awt.BorderLayout.CENTER);
 		}
+		
 		return jContentPane;
 	}
 
@@ -470,6 +748,7 @@ public class JGnuCashViewer extends JFrame {
 			treeScrollPane.setViewportView(getAccountsTree());
 			treeScrollPane.setPreferredSize(new Dimension(defaultWidth, Integer.MAX_VALUE));
 		}
+		
 		return treeScrollPane;
 	}
 
@@ -497,6 +776,7 @@ public class JGnuCashViewer extends JFrame {
 				return Messages_JGnuCashViewer.getString("JGnuCashViewer.8");
 			}
 		});
+		
 		return jFileChooser;
 	}
 
@@ -542,14 +822,13 @@ public class JGnuCashViewer extends JFrame {
 			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			setModel(createModelFromFile(f));
 			return true;
-		}
-		catch (Exception e1) {
+		} catch (Exception e1) {
 			LOGGER.error("loadFile: Cannot load file '" + f.getAbsoluteFile() + "'", e1);
 			e1.printStackTrace();
-		}
-		finally {
+		} finally {
 			setCursor(Cursor.getDefaultCursor());
 		}
+		
 		return false;
 	}
 
@@ -567,9 +846,6 @@ public class JGnuCashViewer extends JFrame {
 		return myModel;
 	}
 
-	/**
-	 * @param model the file we operate on.
-	 */
 	public void setModel(final GnuCashFile model) {
 		if ( model == null ) {
 			throw new IllegalArgumentException("argument <model> is null");

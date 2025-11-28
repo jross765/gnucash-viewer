@@ -48,11 +48,15 @@ public class TransactionsPanel extends JPanel {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionsPanel.class);
 
+	// For serializing
+	private static final long serialVersionUID = 5258200017356594250L;
+
+	// ---------------------------------------------------------------
+
 	private static final int DEFAULT_WIDTH = 300;
 	private static final int DEFAULT_HEIGHT = 200;
 
-	// For serializing
-	private static final long serialVersionUID = 5258200017356594250L;
+	// ---------------------------------------------------------------
 
 	// A scrollpane for ${@link #transactionTable}}
 	private JScrollPane trxTabScrollPane = null;
@@ -82,13 +86,16 @@ public class TransactionsPanel extends JPanel {
 	// The actions we have on Splits
 	private Collection<TransactionSplitAction> mySplitActions;
 
+	// ---------------------------------------------------------------
+
 	/**
 	 * @return Returns the model
-	 * @see #model
 	 */
 	public GnuCashTransactionSplitsTableModel getModel() {
 		return model;
 	}
+
+	// ---------------------------------------------------------------
 
 	/**
 	 * @param aModel The model to set.
@@ -160,7 +167,6 @@ public class TransactionsPanel extends JPanel {
 		updateSelectionSummaryAccountList();
 		updateSelectionSummary();
 		getSingleTransactionPanel().setTransaction(null);
-
 	}
 
 	/**
@@ -255,7 +261,7 @@ public class TransactionsPanel extends JPanel {
 						GnuCashTransactionSplit localSplit = model.getTransactionSplit(rowIndex);
 						GnuCashTransaction trx = localSplit.getTransaction();
 						StringBuilder output = new StringBuilder();
-						output.append(trx.toString()); //$NON-NLS-1$
+						output.append(trx.toString());
 
 						if ( ! trx.isBalanced() ) {
 							output.append(" TRANSACTION IS NOT BALANCED! missing=" + trx.getBalanceFormatted()); //$NON-NLS-1$
@@ -544,16 +550,15 @@ public class TransactionsPanel extends JPanel {
 			// show a summary for all transactions displayed
 			int count = model.getRowCount();
 			getSelectionSummaryLabel().setText(count + Messages_TransactionsPanel.getString("TransactionsPanel.39") //$NON-NLS-1$
-					+ currencyFormat.format(valueSumPlus)
-					+ currencyFormat.format(valueSumMinus)
-					+ "=" + currencyFormat.format(valueSumBalance)); //$NON-NLS-1$
+					+ currencyFormat.format(valueSumPlus.getBigDecimal())
+					+ currencyFormat.format(valueSumMinus.getBigDecimal())
+					+ " = " + currencyFormat.format(valueSumBalance.getBigDecimal())); //$NON-NLS-1$
 		} else {
 			// show a summary only for the selected transactions
-			getSelectionSummaryLabel().setText(selectedCount
-					+ Messages_TransactionsPanel.getString("TransactionsPanel.41") //$NON-NLS-1$
-					+ currencyFormat.format(valueSumPlus)
-					+ currencyFormat.format(valueSumMinus)
-					+ "=" + currencyFormat.format(valueSumBalance)); //$NON-NLS-1$
+			getSelectionSummaryLabel().setText(selectedCount + Messages_TransactionsPanel.getString("TransactionsPanel.41") //$NON-NLS-1$
+					+ currencyFormat.format(valueSumPlus.getBigDecimal())
+					+ currencyFormat.format(valueSumMinus.getBigDecimal())
+					+ " = " + currencyFormat.format(valueSumBalance.getBigDecimal())); //$NON-NLS-1$
 		}
 
 	}
@@ -562,23 +567,61 @@ public class TransactionsPanel extends JPanel {
 	 * @param trx the transactions to show in detail
 	 */
 	public void setTransaction(final GnuCashTransaction trx) {
-		TableModel temp = getTransactionTable().getModel();
+		setTransactionCore(trx);
+		
+		getSingleTransactionPanel().setTransaction(trx);
+		getSingleTransactionPanel().setVisible(true);
+		getSelectionSummaryPanel().setVisible(false);
+		getSummaryPanel().setPreferredSize(getSingleTransactionPanel().getPreferredSize());
+	}
+
+	private void setTransactionCore(final GnuCashTransaction trx) {
+		JTable trxTab = getTransactionTable();
+		TableModel temp = trxTab.getModel();
 		if ( temp != null && 
 			 temp instanceof GnuCashTransactionSplitsTableModel ) {
 			GnuCashTransactionSplitsTableModel tblModel = (GnuCashTransactionSplitsTableModel) temp;
 			int max = tblModel.getRowCount();
 			for ( int i = 0; i < max; i++ ) {
 				if ( tblModel.getTransactionSplit(i).getTransaction().getID().equals( trx.getID() ) ) {
-					getTransactionTable().getSelectionModel().setSelectionInterval(i, i);
+					getTransactionTable()
+						.getSelectionModel().setSelectionInterval(i, i);
 					return;
 				}
 			}
+		} else {
+			LOGGER.error( "setTransactionCore: Could not get transaction table" );
 		}
+	}
+
+	public void setTransactionSplit(final GnuCashTransactionSplit splt) {
+		setTransactionCore( splt.getTransaction() );
+		setTransactionSplitCore( splt );
 		
-		getSingleTransactionPanel().setTransaction(trx);
+		getSingleTransactionPanel().setTransaction(splt.getTransaction());
 		getSingleTransactionPanel().setVisible(true);
 		getSelectionSummaryPanel().setVisible(false);
 		getSummaryPanel().setPreferredSize(getSingleTransactionPanel().getPreferredSize());
+	}
+
+	private void setTransactionSplitCore(final GnuCashTransactionSplit splt) {
+		JTable spltTab = mySingleTransactionPanel.getTransactionSplitTable();
+		TableModel temp = spltTab.getModel();
+		if ( temp != null && 
+			 temp instanceof GnuCashTransactionSplitsTableModel ) {
+			GnuCashTransactionSplitsTableModel tblModel = (GnuCashTransactionSplitsTableModel) temp;
+			int max = tblModel.getRowCount();
+			for ( int i = 0; i < max; i++ ) {
+				if ( tblModel.getTransactionSplit(i).getID().equals( splt.getID() ) ) {
+					mySingleTransactionPanel.getTransactionSplitTable()
+						.getSelectionModel().setSelectionInterval(i + 1, i + 1); // <-- CAUTION: +1 because of first line = 
+																				 // summary of/reference to transaction
+					return;
+				}
+			}
+		} else {
+			LOGGER.error( "setTransactionSplitCore: Could not get transaction-split table" );
+		}
 	}
 
 	/**
