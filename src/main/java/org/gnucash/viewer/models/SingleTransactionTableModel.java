@@ -19,7 +19,7 @@ import org.gnucash.api.read.GnuCashTransactionSplit;
  * TableModel to show and edit the splits and details of a single transaction.
  */
 public class SingleTransactionTableModel implements GnuCashTransactionSplitsTableModel {
-	
+
 	enum TableCols {
 		DATE,
 		ACTION,
@@ -48,10 +48,24 @@ public class SingleTransactionTableModel implements GnuCashTransactionSplitsTabl
 	// How to format currencies
 	public static final NumberFormat DEFAULT_CURRENCY_FORMAT = NumberFormat.getCurrencyInstance();
 
+	// ---------------------------------------------------------------
+
+	public SingleTransactionTableModel() {
+		super();
+		myTransaction = null;
+	}
+
 	public SingleTransactionTableModel(final GnuCashTransaction trx) {
 		super();
 		myTransaction = trx;
 	}
+
+	public SingleTransactionTableModel(final GnuCashTransactionSplit splt) {
+		super();
+		myTransaction = splt.getTransaction();
+	}
+	
+	// ---------------------------------------------------------------
 
 	public boolean isMultiCurrency() {
 		if ( getTransaction() == null ) {
@@ -67,11 +81,6 @@ public class SingleTransactionTableModel implements GnuCashTransactionSplitsTabl
 		}
 
 		return false;
-	}
-
-	public SingleTransactionTableModel() {
-		super();
-		myTransaction = null;
 	}
 
 	public GnuCashTransaction getTransaction() {
@@ -121,7 +130,13 @@ public class SingleTransactionTableModel implements GnuCashTransactionSplitsTabl
 		return String.class;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @see javax.swing.table.TableModel#getValueAt(int, int)
+	 */
 	public Object getValueAt(final int rowIndex, final int columnIndex) {
+		// "date", "action", "description", "account", "+", "-"
 		try {
 			if ( rowIndex == 0 ) {
 				// show data of transaction
