@@ -38,16 +38,17 @@ public class ShowTransactionPanel extends JPanel {
 
 	static final Logger LOGGER = LoggerFactory.getLogger(ShowTransactionPanel.class);
 
+	private static final long serialVersionUID = 9006255853615066626L;
+
+	// ---------------------------------------------------------------
+
 	// ::MAGIC
 	private static final int DEFAULT_WIDTH = 200;
 	private static final int DEFAULT_HEIGHT = 200;
 
 	private static final double FACTOR_COL_WIDTH_ACTION = 1.5;
 
-	/**
-	 * for serializing.
-	 */
-	private static final long serialVersionUID = 9006255853615066626L;
+	// ---------------------------------------------------------------
 
 	/**
 	 * The transaction we are showing.
@@ -60,6 +61,22 @@ public class ShowTransactionPanel extends JPanel {
 	 */
 	private Collection<TransactionSplitAction> mySplitActions;
 
+	// ---------------------------------------------------------------
+
+	// The table showing the splits.
+	private JTable trxTab;
+
+	// My SCrollPane over {@link #trxTab}.
+	private JScrollPane trxTabScrollPane;
+
+	// ---------------------------------------------------------------
+
+	public ShowTransactionPanel() {
+		super();
+		myTransaction = null;
+
+		initialize();
+	}
 
 	/**
 	 * @param aTransaction The transaction we are showing.
@@ -71,9 +88,8 @@ public class ShowTransactionPanel extends JPanel {
 		initialize();
 	}
 
-	/**
-	 * initialize the Gui.
-	 */
+	// ---------------------------------------------------------------
+
 	private void initialize() {
 		this.setLayout(new BorderLayout());
 		this.add(getTransactionTableScrollPane(), BorderLayout.CENTER);
@@ -144,18 +160,7 @@ public class ShowTransactionPanel extends JPanel {
 	}
 
 	/**
-	 * make us visible.
-	 */
-	public ShowTransactionPanel() {
-		super();
-		myTransaction = null;
-
-		initialize();
-	}
-
-	/**
 	 * @return Returns the transaction.
-	 * @see #myTransaction
 	 */
 	public GnuCashTransaction getTransaction() {
 		return myTransaction;
@@ -186,25 +191,35 @@ public class ShowTransactionPanel extends JPanel {
 		setModel(model);
 	}
 
+	public void setTransactionSplit(final GnuCashTransactionSplit splt) {
+		Object old = myTransaction;
+		if (old == splt.getTransaction()) {
+			return; // nothing has changed
+		}
+		myTransaction = splt.getTransaction();
+
+		SingleTransactionTableModel model = null;
+
+		if ( splt == null ) {
+			model = new SingleTransactionTableModel();
+			setPreferredSize(new Dimension(0, 0));
+			invalidate();
+		} else {
+			model = new SingleTransactionTableModel(splt);
+			setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+			invalidate();
+		}
+		
+		setModel(model);
+	}
+
 	/**
 	 * The model of our ${@link #trxTab}.
 	 */
 	private GnuCashTransactionSplitsTableModel model;
 
 	/**
-	 * The table showing the splits.
-	 */
-	private JTable trxTab;
-
-	/**
-	 * My SCrollPane over {@link #trxTab}.
-	 */
-	private JScrollPane trxTabScrollPane;
-
-
-	/**
 	 * @return Returns the model.
-	 * @see #model
 	 */
 	public GnuCashTransactionSplitsTableModel getModel() {
 		return model;
@@ -225,7 +240,7 @@ public class ShowTransactionPanel extends JPanel {
 		}
 		model = aModel;
 
-		getTransactionTable().setModel(model);
+		getTransactionSplitTable().setModel(model);
 		trxTab.setAutoCreateRowSorter(false);
 		
 		// ---
@@ -236,7 +251,7 @@ public class ShowTransactionPanel extends JPanel {
 				SwingUtilities.computeStringWidth(metrics, SingleTransactionTableModel.DATE_FORMAT.format(LocalDateTime.now())) + Const.TABLE_COL_EXTRA_WIDTH);
 
 		int currencyWidthDefault = SwingUtilities.computeStringWidth(metrics, SingleTransactionTableModel.DEFAULT_CURRENCY_FORMAT.format(Const.TABLE_COL_AMOUNT_WIDTH_VAL_SMALL));
-		int currencyWidthMax     = SwingUtilities.computeStringWidth(metrics, SingleTransactionTableModel.DEFAULT_CURRENCY_FORMAT.format(Const.TABLE_COL_AMOUNT_WIDTH_VAL_BIG));
+		int currencyWidthMax     = SwingUtilities.computeStringWidth(metrics, SingleTransactionTableModel.DEFAULT_CURRENCY_FORMAT.format(Const.TABLE_COL_AMOUNT_WIDTH_VAL_BIG)) * 2; // sic, times 2 because of add. info in case of non-currency
 
 		trxTab.getColumn(Messages_ShowTransactionPanel.getString("ShowTransactionPanel.5")).setPreferredWidth(currencyWidthDefault); //$NON-NLS-1$
 		trxTab.getColumn(Messages_ShowTransactionPanel.getString("ShowTransactionPanel.6")).setPreferredWidth(currencyWidthDefault); //$NON-NLS-1$
@@ -263,8 +278,9 @@ public class ShowTransactionPanel extends JPanel {
 	private JScrollPane getTransactionTableScrollPane() {
 		if (trxTabScrollPane == null) {
 			trxTabScrollPane = new JScrollPane();
-			trxTabScrollPane.setViewportView(getTransactionTable());
+			trxTabScrollPane.setViewportView(getTransactionSplitTable());
 		}
+		
 		return trxTabScrollPane;
 	}
 
@@ -273,7 +289,7 @@ public class ShowTransactionPanel extends JPanel {
 	 *
 	 * @return javax.swing.JTable
 	 */
-	protected JTable getTransactionTable() {
+	protected JTable getTransactionSplitTable() {
 		if (trxTab == null) {
 			trxTab = new JTable() {
 				// *****
