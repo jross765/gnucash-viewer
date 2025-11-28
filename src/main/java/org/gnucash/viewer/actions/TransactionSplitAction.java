@@ -5,7 +5,7 @@ import javax.swing.Action;
 import org.gnucash.api.read.GnuCashTransactionSplit;
 
 /*
- * Action that can be executed on a GnuCashTransactionSplit
+ * Action that can be executed on a {@link GnuCashTransactionSplit}
  */
 public interface TransactionSplitAction extends Action {
 

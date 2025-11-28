@@ -9,9 +9,6 @@ import org.gnucash.api.read.GnuCashAccount;
  */
 public interface AccountAction extends Action {
 
-    /**
-     * Set the account this action works on.
-     * @param anAccount the account to work.
-     */
+    // Set the account this action works on.
     void setAccount(final GnuCashAccount anAccount);
 }
