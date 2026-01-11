@@ -375,7 +375,7 @@ public class JGnuCashViewer extends JFrame {
 		options.addOption( optSpltID );
 	}
 
-	protected void getConfigSettings(PropertiesConfiguration cs) throws Exception {
+	protected void getConfigSettings(PropertiesConfiguration cfg) throws Exception {
 		// ::EMPTY
 	}
 
@@ -445,7 +445,7 @@ public class JGnuCashViewer extends JFrame {
 	      
 	    	try {
 	    		trxID = new GCshTrxID(  cmdLine.getOptionValue("transaction-id") );
-	    		startMode = StartMode.OPEN_ACCOUNT_TRANSACTION; 
+	    		startMode = StartMode.OPEN_ACCOUNT_TRANSACTION;  // for the moment -- could change to OPEN_TRANSACTION_SPLIT 
 	    	} catch ( Exception exc ) {
 	    		System.err.println("Could not parse <transaction-id>");
 	    		throw new InvalidCommandLineArgsException();
@@ -456,7 +456,8 @@ public class JGnuCashViewer extends JFrame {
 	    
 	    // <split-id>
 	    if ( cmdLine.hasOption("split-id") ) {
-	    	if ( startMode != StartMode.REGULAR ) {
+	    	if ( startMode != StartMode.REGULAR &&
+	    		 startMode != StartMode.OPEN_ACCOUNT_TRANSACTION ) { // <-- notice
 	    		System.err.println("<split-id> cannot be set because another ID has already been set");
 	    		throw new InvalidCommandLineArgsException();
 	    	}
@@ -488,11 +489,12 @@ public class JGnuCashViewer extends JFrame {
 		}
 	}
 
+	// ---------------------------------------------------------------
+
 	protected static void installNimbusLaF() {
 		try {
 			UIManager.setLookAndFeel(new NimbusLookAndFeel());
-		}
-		catch (UnsupportedLookAndFeelException e) {
+		} catch (UnsupportedLookAndFeelException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 	}
@@ -846,7 +848,21 @@ public class JGnuCashViewer extends JFrame {
 		return myModel;
 	}
 
-	public void setModel(final GnuCashFile model) {
+	public void setModel(final GnuCashFile model) throws IOException {
+		if ( model == null ) {
+			throw new IllegalArgumentException("argument <model> is null");
+		}
+
+		myModel = model;
+		getAccountsTree().setModel(new GnuCashAccountsTreeModel(myModel));
+		setSelectedAccount(null);
+		setTitle(TITLE);
+	}
+
+	/**
+	 * @param model the file we operate on.
+	 */
+	public void setModel(final GnuCashFileImpl model) {
 		if ( model == null ) {
 			throw new IllegalArgumentException("argument <model> is null");
 		}

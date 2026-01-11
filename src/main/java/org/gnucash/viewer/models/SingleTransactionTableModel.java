@@ -15,7 +15,7 @@ import org.gnucash.api.Const;
 import org.gnucash.api.read.GnuCashTransaction;
 import org.gnucash.api.read.GnuCashTransactionSplit;
 
-/*
+/**
  * TableModel to show and edit the splits and details of a single transaction.
  */
 public class SingleTransactionTableModel implements GnuCashTransactionSplitsTableModel {

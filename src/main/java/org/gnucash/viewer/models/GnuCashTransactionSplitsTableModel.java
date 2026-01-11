@@ -27,5 +27,4 @@ public interface GnuCashTransactionSplitsTableModel extends TableModel {
      */
     GnuCashTransactionSplit getTransactionSplit(final int rowIndex);
 
-
 }

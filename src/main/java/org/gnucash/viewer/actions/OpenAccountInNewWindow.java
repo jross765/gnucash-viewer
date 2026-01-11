@@ -113,13 +113,13 @@ public class OpenAccountInNewWindow implements AccountAction,
     	TransactionsPanel newPanel = new TransactionsPanel();
         newPanel.setAccount(myAccount);
         if ( myTransactionSplit != null &&
-           	 myTransaction      != null ) {
-           	if ( selectSplit ) {
-                   newPanel.setTransactionSplit(myTransactionSplit);
-           	} else {
-                   newPanel.setTransaction(myTransaction);
-           	}
-           }
+        	 myTransaction      != null ) {
+        	if ( selectSplit ) {
+                  newPanel.setTransactionSplit(myTransactionSplit);
+        	} else {
+                  newPanel.setTransaction(myTransaction);
+        	}
+        }
         JFrame newFrame = new JFrame(myAccount.getName());
         newFrame.getContentPane().add(newPanel);
         newFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
