@@ -16,7 +16,7 @@ import javax.swing.event.TableModelListener;
 import org.gnucash.api.read.GnuCashAccount;
 import org.gnucash.api.read.GnuCashTransactionSplit;
 import org.gnucash.api.read.impl.GnuCashAccountImpl;
-import org.gnucash.base.basetypes.complex.GCshCmdtyCurrID;
+import org.gnucash.base.basetypes.complex.GCshCmdtyID;
 import org.gnucash.viewer.GUIServices;
 
 /**
@@ -211,7 +211,7 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 	private void updateCurrencyFormat(final GnuCashTransactionSplit split) {
 		currencyFormat = NumberFormat.getNumberInstance();
 		try {
-			if ( split.getAccount().getCmdtyCurrID().getType() == GCshCmdtyCurrID.Type.CURRENCY ) {
+			if ( split.getAccount().getCmdtyCurrID().getType() == GCshCmdtyID.Type.CURRENCY ) {
 				Currency currency = Currency.getInstance(split.getAccount().getCmdtyCurrID().getCode());
 				currencyFormat = NumberFormat.getCurrencyInstance();
 				currencyFormat.setCurrency(currency);

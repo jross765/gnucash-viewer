@@ -34,7 +34,7 @@ public class SingleTransactionTableModel implements GnuCashTransactionSplitsTabl
 
 	// The columns we display
 	private final String[] defaultColumnNames = new String[] {
-			Messages_SingleTransactionTableModel.getString("SingleTransactionTableModel.1"), 
+			Messages_SingleTransactionTableModel.getString("SingleTransactionTableModel.1"),
 			Messages_SingleTransactionTableModel.getString("SingleTransactionTableModel.2"), 
 			Messages_SingleTransactionTableModel.getString("SingleTransactionTableModel.3"), 
 			Messages_SingleTransactionTableModel.getString("SingleTransactionTableModel.4"), 

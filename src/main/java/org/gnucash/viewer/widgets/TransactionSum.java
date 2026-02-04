@@ -19,7 +19,7 @@ import org.gnucash.api.read.GnuCashAccount;
 import org.gnucash.api.read.GnuCashFile;
 import org.gnucash.api.read.GnuCashTransaction;
 import org.gnucash.api.read.GnuCashTransactionSplit;
-import org.gnucash.base.basetypes.complex.GCshCmdtyCurrID;
+import org.gnucash.base.basetypes.complex.GCshCmdtyID;
 import org.gnucash.base.basetypes.simple.GCshAcctID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -264,7 +264,7 @@ public class TransactionSum extends JPanel {
 	 */
 	private FixedPointNumber buildSum(final GnuCashAccount aSourceAccount,
 			final Set<GCshAcctID> aTargetAccountsIDs,
-			final GCshCmdtyCurrID currencyID,
+			final GCshCmdtyID currencyID,
 			final Set<GnuCashTransactionSplit> alreadyHandled) {
 
 		FixedPointNumber sum = new FixedPointNumber();
@@ -333,9 +333,9 @@ public class TransactionSum extends JPanel {
 	}
 
 	private FixedPointNumber convert(
-			final GCshCmdtyCurrID aCurrencyIDFrom,
+			final GCshCmdtyID aCurrencyIDFrom,
 			final FixedPointNumber aSum,
-			final GCshCmdtyCurrID aCurrencyIDTo) {
+			final GCshCmdtyID aCurrencyIDTo) {
 		ComplexPriceTable currencyTable = getBooks().getCurrencyTable();
 
 		if (currencyTable == null) {
@@ -345,29 +345,20 @@ public class TransactionSum extends JPanel {
 		}
 		FixedPointNumber sum = new FixedPointNumber(aSum);
 
-		if (!currencyTable.convertToBaseCurrency(
-				sum,
-				aCurrencyIDFrom)) {
-			Collection<String> currencies = getBooks().getCurrencyTable().getCurrencies(
-					aCurrencyIDFrom.getNameSpace());
+		sum = currencyTable.convertToBaseCurrency(sum, aCurrencyIDFrom);
+		if ( sum == null ) {
 			LOGGER.warn("SimpleAccount.getBalance() - cannot transfer "
 					+ "from our currency '"
-					+ aCurrencyIDFrom.getNameSpace() + "'-'"
-					+ aCurrencyIDFrom
-					+ "' to the base-currency!"
-					+ " \n(we know " + getBooks().getCurrencyTable().getNameSpaces().size()
-					+ " currency-namespaces and "
-					+ (currencies == null ? "no" : "" + currencies.size())
-					+ " currencies in our namespace)");
+					+ aCurrencyIDFrom.getNameSpace() + GCshCmdtyID.SEPARATOR + aCurrencyIDFrom.getCode()
+					+ "' to the base-currency!");
 			return null;
 		}
 
-		if (!currencyTable.convertFromBaseCurrency(sum, aCurrencyIDTo)) {
+		sum = currencyTable.convertFromBaseCurrency(sum, aCurrencyIDTo);
+		if ( sum == null ) {
 			LOGGER.warn("SimpleAccount.getBalance() - cannot transfer "
 					+ "from base-currenty to given currency '"
-					+ aCurrencyIDTo.getNameSpace()
-					+ "-"
-					+ aCurrencyIDTo
+					+ aCurrencyIDTo.getNameSpace() + GCshCmdtyID.SEPARATOR + aCurrencyIDTo.getCode()
 					+ "'!");
 			return null;
 		}
