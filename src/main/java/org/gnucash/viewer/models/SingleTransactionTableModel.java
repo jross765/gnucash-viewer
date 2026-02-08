@@ -73,9 +73,9 @@ public class SingleTransactionTableModel implements GnuCashTransactionSplitsTabl
 		}
 
 		for ( GnuCashTransactionSplit splt : getTransaction().getSplits() ) {
-			if ( splt.getAccount().getCmdtyCurrID().getType() != getTransaction().getCmdtyCurrID().getType() ||
-				 ! splt.getAccount().getCmdtyCurrID().getNameSpace().equals(getTransaction().getCmdtyCurrID().getNameSpace()) || 
-				 ! splt.getAccount().getCmdtyCurrID().equals(getTransaction().getCmdtyCurrID()) ) {
+			if ( splt.getAccount().getCmdtyID().getType() != getTransaction().getCmdtyID().getType() ||
+				 ! splt.getAccount().getCmdtyID().getNameSpace().equals(getTransaction().getCmdtyID().getNameSpace()) || 
+				 ! splt.getAccount().getCmdtyID().equals(getTransaction().getCmdtyID()) ) {
 				return true;
 			}
 		}
@@ -178,9 +178,9 @@ public class SingleTransactionTableModel implements GnuCashTransactionSplitsTabl
 				return splt.getAccount().getQualifiedName();
 			} else if ( columnIndex == TableCols.PLUS.ordinal() ) {
 				if ( splt.getValue().isPositive() ) {
-					if ( splt.getAccount().getCmdtyCurrID().getType() == getTransaction().getCmdtyCurrID().getType() && 
-						 splt.getAccount().getCmdtyCurrID().getNameSpace().equals(getTransaction().getCmdtyCurrID().getNameSpace()) && 
-						 splt.getAccount().getCmdtyCurrID().equals(getTransaction().getCmdtyCurrID()) ) {
+					if ( splt.getAccount().getCmdtyID().getType() == getTransaction().getCmdtyID().getType() && 
+						 splt.getAccount().getCmdtyID().getNameSpace().equals(getTransaction().getCmdtyID().getNameSpace()) && 
+						 splt.getAccount().getCmdtyID().equals(getTransaction().getCmdtyID()) ) {
 						return splt.getValueFormatted();
 					}
 					return splt.getValueFormatted() + " (" + splt.getQuantityFormatted() + ")";
@@ -189,9 +189,9 @@ public class SingleTransactionTableModel implements GnuCashTransactionSplitsTabl
 				}
 			} else if ( columnIndex == TableCols.MINUS.ordinal() ) {
 				if ( ! splt.getValue().isPositive() ) {
-					if ( splt.getAccount().getCmdtyCurrID().getType() == getTransaction().getCmdtyCurrID().getType() && 
-						 splt.getAccount().getCmdtyCurrID().getNameSpace().equals(getTransaction().getCmdtyCurrID().getNameSpace()) && 
-						 splt.getAccount().getCmdtyCurrID().equals(getTransaction().getCmdtyCurrID()) ) {
+					if ( splt.getAccount().getCmdtyID().getType() == getTransaction().getCmdtyID().getType() && 
+						 splt.getAccount().getCmdtyID().getNameSpace().equals(getTransaction().getCmdtyID().getNameSpace()) && 
+						 splt.getAccount().getCmdtyID().equals(getTransaction().getCmdtyID()) ) {
 						return splt.getValueFormatted();
 					}
 					return splt.getValueFormatted() + " (" + splt.getQuantityFormatted() + ")";

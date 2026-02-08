@@ -231,7 +231,7 @@ public class TransactionSum extends JPanel {
 			FixedPointNumber addMe =
 					buildSum(sourceAccount,
 							targetAccountsIDs,
-							sourceAccount.getCmdtyCurrID(),
+							sourceAccount.getCmdtyID(),
 							transactions);
 			if (addMe == null) {
 				mySumLabel.setText("   cannot determine sum");
@@ -247,12 +247,12 @@ public class TransactionSum extends JPanel {
 		Iterator<GnuCashAccount> iterator = targetAccounts.iterator();
 		if (iterator.hasNext()) {
 			mySumLabel.setText("   " + sum.toString() + ""
-					+ iterator.next().getCmdtyCurrID());
+					+ iterator.next().getCmdtyID());
 		} else {
 			Iterator<GnuCashAccount> iterator2 = sourceAccounts.iterator();
 			if (iterator2.hasNext()) {
 				mySumLabel.setText("   " + sum.toString() + ""
-						+ iterator2.next().getCmdtyCurrID());
+						+ iterator2.next().getCmdtyID());
 			} else {
 				mySumLabel.setText("   no account");
 			}
@@ -296,15 +296,15 @@ public class TransactionSum extends JPanel {
 			} else if (getSummationType().equals(SUMMATIONTYPE.ONLYTO) && !split.getQuantity().isPositive()) {
 				continue;
 			}
-			if (aSourceAccount.getCmdtyCurrID().getNameSpace().equals(currencyID.getNameSpace())
-					&& aSourceAccount.getCmdtyCurrID().equals(currencyID)) {
+			if (aSourceAccount.getCmdtyID().getNameSpace().equals(currencyID.getNameSpace())
+					&& aSourceAccount.getCmdtyID().equals(currencyID)) {
 
 				sum = sum.add(split.getQuantity());
 			} else {
 				FixedPointNumber addMe = new FixedPointNumber(split.getQuantity());
 				// do not convert 0
 				if (!addMe.equals(new FixedPointNumber())) {
-					addMe = convert(aSourceAccount.getCmdtyCurrID(), addMe, currencyID);
+					addMe = convert(aSourceAccount.getCmdtyID(), addMe, currencyID);
 				}
 				if (addMe == null) {
 					return null;

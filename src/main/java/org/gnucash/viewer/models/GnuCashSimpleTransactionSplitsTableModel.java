@@ -207,8 +207,8 @@ public class GnuCashSimpleTransactionSplitsTableModel implements GnuCashTransact
     private void updateCurrencyFormat(final GnuCashTransactionSplit split) {
         currencyFormat = NumberFormat.getNumberInstance();
         try {
-            if ( split.getAccount().getCmdtyCurrID().getType() == GCshCmdtyID.Type.CURRENCY ) {
-                Currency currency = Currency.getInstance(split.getAccount().getCmdtyCurrID().getCode());
+            if ( split.getAccount().getCmdtyID().getType() == GCshCmdtyID.Type.CURRENCY ) {
+                Currency currency = Currency.getInstance(split.getAccount().getCmdtyID().getCode());
                 currencyFormat = NumberFormat.getCurrencyInstance();
                 currencyFormat.setCurrency(currency);
             }
