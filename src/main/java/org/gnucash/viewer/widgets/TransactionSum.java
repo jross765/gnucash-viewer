@@ -78,7 +78,7 @@ public class TransactionSum extends JPanel {
 	/**
 	 * The type of summations we are to calculate.
 	 */
-	private SUMMATIONTYPE mySummationType = SUMMATIONTYPE.ALL;
+	private SummationType mySummationType = SummationType.ALL;
 
 	/**
 	 * (c) 2007 by <a href="http://Wolschon.biz>
@@ -91,7 +91,7 @@ public class TransactionSum extends JPanel {
 	 *
 	 * @author <a href="mailto:Marcus@Wolschon.biz">Marcus Wolschon</a>
 	 */
-	public enum SUMMATIONTYPE {
+	public enum SummationType {
 		/**
 		 * Sum all splits.
 		 */
@@ -115,7 +115,7 @@ public class TransactionSum extends JPanel {
 		 * @param aProperty parse this string
 		 * @return and return the value that matches the name
 		 */
-		public static SUMMATIONTYPE getByName(final String aProperty) {
+		public static SummationType getByName(final String aProperty) {
 			if (aProperty.equalsIgnoreCase("all")) {
 				return ALL;
 			}
@@ -181,7 +181,7 @@ public class TransactionSum extends JPanel {
 	public TransactionSum(final GnuCashFile books,
 			final Set<GnuCashAccount> sourceAccounts,
 			final Set<GnuCashAccount> targetAccounts,
-			final SUMMATIONTYPE summationType,
+			final SummationType summationType,
 			final String name,
 			final LocalDate minDate,
 			final LocalDate maxDate) {
@@ -211,10 +211,8 @@ public class TransactionSum extends JPanel {
 		}
 		myTransactionsCounted = 0;
 
-		Set<GnuCashAccount> sourceAccounts = new HashSet<GnuCashAccount>(
-				getSourceAccounts());
-		Set<GnuCashAccount> targetAccounts = new HashSet<GnuCashAccount>(
-				buildTransitiveClosure(getTargetAccounts()));
+		Set<GnuCashAccount> sourceAccounts = new HashSet<GnuCashAccount>(getSourceAccounts());
+		Set<GnuCashAccount> targetAccounts = new HashSet<GnuCashAccount>(buildTransitiveClosure(getTargetAccounts()));
 		Set<GCshAcctID> targetAccountsIDs = new HashSet<GCshAcctID>();
 		for (GnuCashAccount targetAccount : targetAccounts) {
 			targetAccountsIDs.add(targetAccount.getID());
@@ -225,7 +223,7 @@ public class TransactionSum extends JPanel {
 		Set<GnuCashTransactionSplit> transactions = new HashSet<GnuCashTransactionSplit>();
 		FixedPointNumber sum = new FixedPointNumber(0);
 		if (sourceAccounts.size() == 0) {
-			LOGGER.warn("There are no source-accounts given for this transaction-sum");
+			LOGGER.warn("reCalculate: There are no source-accounts given for this transaction-sum");
 		}
 		for (GnuCashAccount sourceAccount : sourceAccounts) {
 			FixedPointNumber addMe =
@@ -251,8 +249,7 @@ public class TransactionSum extends JPanel {
 		} else {
 			Iterator<GnuCashAccount> iterator2 = sourceAccounts.iterator();
 			if (iterator2.hasNext()) {
-				mySumLabel.setText("   " + sum.toString() + ""
-						+ iterator2.next().getCmdtyID());
+				mySumLabel.setText("   " + sum.toString() + "" + iterator2.next().getCmdtyID());
 			} else {
 				mySumLabel.setText("   no account");
 			}
@@ -291,9 +288,9 @@ public class TransactionSum extends JPanel {
 			}
 			alreadyHandled.add(split);
 
-			if (getSummationType().equals(SUMMATIONTYPE.ONLYFROM) && split.getQuantity().isPositive()) {
+			if (getSummationType().equals(SummationType.ONLYFROM) && split.getQuantity().isPositive()) {
 				continue;
-			} else if (getSummationType().equals(SUMMATIONTYPE.ONLYTO) && !split.getQuantity().isPositive()) {
+			} else if (getSummationType().equals(SummationType.ONLYTO) && !split.getQuantity().isPositive()) {
 				continue;
 			}
 			if (aSourceAccount.getCmdtyID().getNameSpace().equals(currencyID.getNameSpace())
@@ -339,7 +336,7 @@ public class TransactionSum extends JPanel {
 		ComplexPriceTable currencyTable = getBooks().getCurrencyTable();
 
 		if (currencyTable == null) {
-			LOGGER.warn("SimpleAccount.getBalance() - cannot transfer "
+			LOGGER.warn("convert: Cannot transfer "
 					+ "to given currency because we have no currency-table!");
 			return null;
 		}
@@ -347,19 +344,15 @@ public class TransactionSum extends JPanel {
 
 		sum = currencyTable.convertToBaseCurrency(sum, aCurrencyIDFrom);
 		if ( sum == null ) {
-			LOGGER.warn("SimpleAccount.getBalance() - cannot transfer "
-					+ "from our currency '"
-					+ aCurrencyIDFrom.getNameSpace() + GCshCmdtyID.SEPARATOR + aCurrencyIDFrom.getCode()
-					+ "' to the base-currency!");
+			LOGGER.warn("convert: Cannot transfer "
+					+ "from our currency '" + aCurrencyIDFrom.toString() + "' to the base-currency!");
 			return null;
 		}
 
 		sum = currencyTable.convertFromBaseCurrency(sum, aCurrencyIDTo);
 		if ( sum == null ) {
-			LOGGER.warn("SimpleAccount.getBalance() - cannot transfer "
-					+ "from base-currenty to given currency '"
-					+ aCurrencyIDTo.getNameSpace() + GCshCmdtyID.SEPARATOR + aCurrencyIDTo.getCode()
-					+ "'!");
+			LOGGER.warn("convert: Cannot transfer "
+					+ "from base-currenty to given currency '" + aCurrencyIDTo.toString() + "'!");
 			return null;
 		}
 		return sum;
@@ -550,7 +543,7 @@ public class TransactionSum extends JPanel {
 	 * @return Returns the summationType.
 	 * @see #mySummationType
 	 */
-	public SUMMATIONTYPE getSummationType() {
+	public SummationType getSummationType() {
 		return mySummationType;
 	}
 
@@ -558,7 +551,7 @@ public class TransactionSum extends JPanel {
 	 * @param aSummationType The summationType to set.
 	 * @see #mySummationType
 	 */
-	public void setSummationType(final SUMMATIONTYPE aSummationType) {
+	public void setSummationType(final SummationType aSummationType) {
 		if (aSummationType == null) {
 			throw new IllegalArgumentException("null 'aSummationType' given!");
 		}
