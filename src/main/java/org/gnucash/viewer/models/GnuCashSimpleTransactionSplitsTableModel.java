@@ -40,7 +40,7 @@ public class GnuCashSimpleTransactionSplitsTableModel implements GnuCashTransact
     public static final DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
     
     // How to format currencies
-    private  NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+    private  NumberFormat currFmt = NumberFormat.getCurrencyInstance();
     
     // How to format currencies
     public static final NumberFormat defaultCurrencyFormat = NumberFormat.getCurrencyInstance();
@@ -202,15 +202,15 @@ public class GnuCashSimpleTransactionSplitsTableModel implements GnuCashTransact
     }
 
     /**
-     * @param split the split whos account to use for the currency
+     * @param splt the split whos account to use for the currency
      */
-    private void updateCurrencyFormat(final GnuCashTransactionSplit split) {
-        currencyFormat = NumberFormat.getNumberInstance();
+    private void updateCurrencyFormat(final GnuCashTransactionSplit splt) {
+        currFmt = NumberFormat.getNumberInstance();
         try {
-            if ( split.getAccount().getCmdtyID().getType() == GCshCmdtyID.Type.CURRENCY ) {
-                Currency currency = Currency.getInstance(split.getAccount().getCmdtyID().getCode());
-                currencyFormat = NumberFormat.getCurrencyInstance();
-                currencyFormat.setCurrency(currency);
+            if ( splt.getAccount().getCmdtyID().getType() == GCshCmdtyID.Type.CURRENCY ) {
+                Currency curr = Currency.getInstance(splt.getAccount().getCmdtyID().getCode());
+                currFmt = NumberFormat.getCurrencyInstance();
+                currFmt.setCurrency(curr);
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block

@@ -74,8 +74,7 @@ public class SingleTransactionTableModel implements GnuCashTransactionSplitsTabl
 
 		for ( GnuCashTransactionSplit splt : getTransaction().getSplits() ) {
 			if ( splt.getAccount().getCmdtyID().getType() != getTransaction().getCmdtyID().getType() ||
-				 ! splt.getAccount().getCmdtyID().getNameSpace().equals(getTransaction().getCmdtyID().getNameSpace()) || 
-				 ! splt.getAccount().getCmdtyID().equals(getTransaction().getCmdtyID()) ) {
+				 ! splt.getAccount().getCmdtyID().toString().equals(getTransaction().getCmdtyID().toString()) ) {
 				return true;
 			}
 		}
@@ -179,8 +178,7 @@ public class SingleTransactionTableModel implements GnuCashTransactionSplitsTabl
 			} else if ( columnIndex == TableCols.PLUS.ordinal() ) {
 				if ( splt.getValue().isPositive() ) {
 					if ( splt.getAccount().getCmdtyID().getType() == getTransaction().getCmdtyID().getType() && 
-						 splt.getAccount().getCmdtyID().getNameSpace().equals(getTransaction().getCmdtyID().getNameSpace()) && 
-						 splt.getAccount().getCmdtyID().equals(getTransaction().getCmdtyID()) ) {
+						 splt.getAccount().getCmdtyID().toString().equals(getTransaction().getCmdtyID().toString()) ) {
 						return splt.getValueFormatted();
 					}
 					return splt.getValueFormatted() + " (" + splt.getQuantityFormatted() + ")";
@@ -190,8 +188,7 @@ public class SingleTransactionTableModel implements GnuCashTransactionSplitsTabl
 			} else if ( columnIndex == TableCols.MINUS.ordinal() ) {
 				if ( ! splt.getValue().isPositive() ) {
 					if ( splt.getAccount().getCmdtyID().getType() == getTransaction().getCmdtyID().getType() && 
-						 splt.getAccount().getCmdtyID().getNameSpace().equals(getTransaction().getCmdtyID().getNameSpace()) && 
-						 splt.getAccount().getCmdtyID().equals(getTransaction().getCmdtyID()) ) {
+						 splt.getAccount().getCmdtyID().toString().equals(getTransaction().getCmdtyID().toString()) ) {
 						return splt.getValueFormatted();
 					}
 					return splt.getValueFormatted() + " (" + splt.getQuantityFormatted() + ")";
