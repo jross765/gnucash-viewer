@@ -58,6 +58,8 @@ import org.gnucash.base.basetypes.simple.GCshAcctID;
 import org.gnucash.base.basetypes.simple.GCshSpltID;
 import org.gnucash.base.basetypes.simple.GCshTrxID;
 import org.gnucash.viewer.actions.AccountAction;
+import org.gnucash.viewer.actions.CopyAccountIDToClipboard;
+import org.gnucash.viewer.actions.CopySplitIDToClipboard;
 import org.gnucash.viewer.actions.OpenAccountInNewTab;
 import org.gnucash.viewer.actions.OpenAccountInNewWindow;
 import org.gnucash.viewer.actions.TransactionSplitAction;
@@ -914,6 +916,7 @@ public class JGnuCashViewer extends JFrame {
 			myAccountActions = new LinkedList<AccountAction>();
 			myAccountActions.add(new OpenAccountInNewTab(getJTabbedPane()));
 			myAccountActions.add(new OpenAccountInNewWindow());
+			myAccountActions.add(new CopyAccountIDToClipboard());
 		}
 		return myAccountActions;
 	}
@@ -926,6 +929,8 @@ public class JGnuCashViewer extends JFrame {
 			mySplitActions = new LinkedList<TransactionSplitAction>();
 			mySplitActions.add(new OpenAccountInNewTab(getJTabbedPane()));
 			mySplitActions.add(new OpenAccountInNewWindow());
+			mySplitActions.add(new CopyAccountIDToClipboard());
+			mySplitActions.add(new CopySplitIDToClipboard());
 		}
 		LOGGER.debug("getSplitActions: JGnuCashViewer has " + (mySplitActions == null ? "no" : mySplitActions.size()) + " split-actions");
 		return mySplitActions;
