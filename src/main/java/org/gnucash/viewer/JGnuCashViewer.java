@@ -790,7 +790,7 @@ public class JGnuCashViewer extends JFrame {
 	 * @throws IOException   if the file cannot be loaded from disk
 	 */
 	protected GnuCashFile createModelFromFile(final File f) throws IOException {
-		return new GnuCashFileImpl(f);
+		return new GnuCashFileImpl(f, true);
 	}
 
 	/**
@@ -932,12 +932,12 @@ public class JGnuCashViewer extends JFrame {
 	}
 
 	/**
-	 * @param account the account to show
+	 * @param acct the account to show
 	 */
-	public void openAccountInTab(final GnuCashAccount account) {
+	public void openAccountInTab(final GnuCashAccount acct) {
 		final TransactionsPanel newTransactionsPanel = new TransactionsPanel();
-		newTransactionsPanel.setAccount(account);
-		String tabName = account.getName();
+		newTransactionsPanel.setAccount(acct);
+		String tabName = acct.getName();
 		addTab(tabName, newTransactionsPanel);
 	}
 
