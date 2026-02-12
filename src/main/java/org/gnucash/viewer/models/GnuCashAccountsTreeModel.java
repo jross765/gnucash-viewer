@@ -105,11 +105,11 @@ public class GnuCashAccountsTreeModel implements TreeModel {
 
         public List<GnuCashAccountTreeEntry> getChildTreeNodes() {
             if ( childTreeNodes == null ) {
-                Collection<? extends GnuCashAccount> c = getChildAccounts();
-                childTreeNodes = new ArrayList<GnuCashAccountTreeEntry>(c.size());
-                for ( GnuCashAccount gnucashAccount : c ) {
-                    GnuCashAccount subaccount = gnucashAccount;
-                    childTreeNodes.add(new GnuCashAccountTreeEntry(subaccount));
+                Collection<? extends GnuCashAccount> acctList = getChildAccounts();
+                childTreeNodes = new ArrayList<GnuCashAccountTreeEntry>(acctList.size());
+                for ( GnuCashAccount acct : acctList ) {
+                    GnuCashAccount subAcct = acct;
+                    childTreeNodes.add(new GnuCashAccountTreeEntry(subAcct));
                 }
             }
 

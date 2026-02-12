@@ -199,37 +199,37 @@ public class TransactionSum extends JPanel {
 	 * Do the actual calculation.
 	 */
 	private void reCalculate() {
-		if (getSummationType() == null
-				|| getSourceAccounts() == null
-				|| getTargetAccounts() == null
-				|| getSummationType() == null
-				//|| getMinDate() == null
-				//|| getMaxDate() == null
-				|| getBooks() == null) {
+		if ( getSummationType() == null || 
+			 getSourceAccounts() == null ||
+			 getTargetAccounts() == null || 
+			 getSummationType() == null ||
+			 // getMinDate() == null ||
+			 // getMaxDate() == null ||
+			getBooks() == null ) {
 			mySumLabel.setText("---");
 			return;
 		}
 		myTransactionsCounted = 0;
 
-		Set<GnuCashAccount> sourceAccounts = new HashSet<GnuCashAccount>(getSourceAccounts());
-		Set<GnuCashAccount> targetAccounts = new HashSet<GnuCashAccount>(buildTransitiveClosure(getTargetAccounts()));
-		Set<GCshAcctID> targetAccountsIDs = new HashSet<GCshAcctID>();
-		for (GnuCashAccount targetAccount : targetAccounts) {
-			targetAccountsIDs.add(targetAccount.getID());
+		Set<GnuCashAccount> srcAcctList = new HashSet<GnuCashAccount>(getSourceAccounts());
+		Set<GnuCashAccount> tgtAcctList = new HashSet<GnuCashAccount>(buildTransitiveClosure(getTargetAccounts()));
+		Set<GCshAcctID> tgtAcctIDList = new HashSet<GCshAcctID>();
+		for ( GnuCashAccount tgtAcct : tgtAcctList ) {
+			tgtAcctIDList.add(tgtAcct.getID());
 		}
 
 		////////////////////////////////////
 		// find all applicable transacion
 		Set<GnuCashTransactionSplit> transactions = new HashSet<GnuCashTransactionSplit>();
 		FixedPointNumber sum = new FixedPointNumber(0);
-		if (sourceAccounts.size() == 0) {
+		if ( srcAcctList.size() == 0 ) {
 			LOGGER.warn("reCalculate: There are no source-accounts given for this transaction-sum");
 		}
-		for (GnuCashAccount sourceAccount : sourceAccounts) {
+		for ( GnuCashAccount srcAcct : srcAcctList ) {
 			FixedPointNumber addMe =
-					buildSum(sourceAccount,
-							targetAccountsIDs,
-							sourceAccount.getCmdtyID(),
+					buildSum(srcAcct,
+							tgtAcctIDList,
+							srcAcct.getCmdtyID(),
 							transactions);
 			if (addMe == null) {
 				mySumLabel.setText("   cannot determine sum");
@@ -242,14 +242,13 @@ public class TransactionSum extends JPanel {
 		setValue(sum);
 		////////////////////////////////////
 		// set output
-		Iterator<GnuCashAccount> iterator = targetAccounts.iterator();
+		Iterator<GnuCashAccount> iterator = tgtAcctList.iterator();
 		if (iterator.hasNext()) {
-			mySumLabel.setText("   " + sum.toString() + ""
-					+ iterator.next().getCmdtyID());
+			mySumLabel.setText("   " + sum.toString() + iterator.next().getCmdtyID());
 		} else {
-			Iterator<GnuCashAccount> iterator2 = sourceAccounts.iterator();
+			Iterator<GnuCashAccount> iterator2 = srcAcctList.iterator();
 			if (iterator2.hasNext()) {
-				mySumLabel.setText("   " + sum.toString() + "" + iterator2.next().getCmdtyID());
+				mySumLabel.setText("   " + sum.toString() + iterator2.next().getCmdtyID());
 			} else {
 				mySumLabel.setText("   no account");
 			}

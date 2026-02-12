@@ -55,14 +55,14 @@ public class OpenAccountInNewTab implements AccountAction,
         myTabbedPane = aTabbedPane;
     }
 
-    public OpenAccountInNewTab(final JTabbedPane aTabbedPane, final GnuCashTransactionSplit aSplit) {
-        this(aTabbedPane);
-        setSplit(aSplit);
-    }
-
     public OpenAccountInNewTab(final JTabbedPane aTabbedPane, final GnuCashAccount anAccount) {
         this(aTabbedPane);
         setAccount(anAccount);
+    }
+
+    public OpenAccountInNewTab(final JTabbedPane aTabbedPane, final GnuCashTransactionSplit aSplit) {
+        this(aTabbedPane);
+        setSplit(aSplit);
     }
 
     // ---------------------------------------------------------------
