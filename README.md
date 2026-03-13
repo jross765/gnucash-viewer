@@ -4,7 +4,14 @@
 
 A Swing-based GUI viewer for 
 GnuCash 
-XML-based files.
+XML-based files. It is, of course, based on the modules
+
+* Base
+* API (Core)
+* API Specialized Entities
+* API Extensions,
+
+but *not* on "API Examples" (neither technically nor logically).
 
 ## What is This Repo's Relationship with the Other Repos?
 
@@ -18,14 +25,18 @@ XML-based files.
 ### V. 1.1 &rarr; 1.2
 * Viewer can now be started with command line options:
     * With account ID: Will open new window with according account immediatly after start.
-    * With transaction split ID (or alternatively: account ID and transaction ID): Will open new window with according account immediatly after start (as above with account-ID only), and in addition to that
-mark the according transaction (split).
+    * With transaction split ID (or alternatively: account ID and transaction ID): 
+      Will open new window with according account immediatly after start (as above with 
+      account-ID only), and will, additionally, mark the according transaction (split).
+
+* Copy marked object's ID into clipboard 
+  (context menu for accounts, transactions and splits).
 
 * Fixed a few small bugs.
 
 * A couple of minor improvements, both on the surface and under the hood.
 
-### V. 1.1
+### V. 1.0 &rarr; V. 1.1
 * Re-defined scope:
   * Removed everything used for editing -- this is called a viewer, and it shall be one -- and *only* a viewer.
   * Removed some overly specific functionality
@@ -44,9 +55,9 @@ mark the according transaction (split).
 * Some overall clean-up work (amongst others: introduced enums for table columns, which greatly enhances security and readability of the code).
 
 ### V. 1.0
-"New" -- well, not really, but:
+"New" -- well, not really new, but copied from
 
-Copied from https://github.com/rbertoli/gnucash
+`https://github.com/rbertoli/gnucash`
 (commit ccd9867cde12b365da3e65ff8725693d6b4a80fb)
 
 (Originally written by Marcus Wolschon, 
@@ -56,8 +67,6 @@ Version tag by current maintainer.
 
 ## Planned
 
-* Copy marked object's ID into clipboard (context menu).
-
 * Marking / rendering transactions by more general / flexible rules; extracting stuff like the "TODO" word into config files.
 
 * Re-iterating tables and models -- I guess it would be better to handle transactions and transaction splits in completely separate classes (both in package `models` and `panels`) rather than in one class.
@@ -66,7 +75,7 @@ Version tag by current maintainer.
 
 * Possibly (!) supporting additional entities:
 
-  * Commodities
+  * Commodities (securities)
   * Customers / vendors / employees / jobs
   * Customer invoices / vendor bills / employee vouchers
   * Prices (low priority)
@@ -108,7 +117,7 @@ The current author/maintainer has made some important decisions on this module's
   used in running a serious business' daily activities).
   
   A real-world use case that I see for this viewer (for me
-  and others) is: Calling it from a script with user interactiion
+  and others) is: Calling it from a script with user interaction
   (checks by a human being necessary); you call the viewer with a
   transaction ID, say, and -- bam! -- the viewer shows that transaction
   right away with all its details. Similar with the other entities.
@@ -185,7 +194,7 @@ The only aggregations supported are the ones defined by the account hierarchy.
 **Notes**:
 
 * I am neither an accountant nor a tax advisor. However, I happen to be the
-  owner-manager of a German company myself, just as the orig. author is, and so I know a thing or two about what you *typically* (might) need to prepare your tax statement.
+  owner-manager of a German company myself, just as the orig. author is, and thus I know a thing or two about what you *typically* (might) need to prepare your tax statement.
 
   Seen through this lens, I would deem the tax report panel, as originally implemented, too specific / not enough of general interest to the "general public", i.e. typical user of this project's libs.
 
@@ -197,6 +206,12 @@ The only aggregations supported are the ones defined by the account hierarchy.
 
 ## Known Issues
 
-A bit slow -- it takes some 40 s or so to load the current maintainer's personal finance file (not the viewer itself, in fact, but the underlying API). 
+A bit slow -- it takes a while to load the current maintainer's 
+business' 
+file (not the viewer itself, in fact, but the underlying API). 
 
-This, in the current maintainer's opinion, is not so important for CLI based tools (cf. module "Tools"), and only partly relevant for a GUI (it takes long to load a file, but once it is loaded, e.t. runs fast and smoothly); but calls for specific accounts / transaction (splits) (introduced in V. 1.2) only partially make sense in a real-world scenario; few persons will be willing to wait that long for "quick glimpse".
+This, in the current maintainer's opinion, is not so important for CLI based tools 
+(cf. module "Tools"), and only partly relevant for a GUI (it takes long to load a file, 
+but once it is loaded, e.t. runs fast and smoothly); but calls for a specific account / 
+transaction (split) (introduced in V. 1.2) only partially make sense in a real-world 
+scenario; few persons will be willing to wait that long for a "quick glimpse".
