@@ -3,8 +3,6 @@ package org.gnucash.viewer.models;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DateFormat;
-import java.text.NumberFormat;
-import java.util.Currency;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,7 +12,6 @@ import javax.swing.JOptionPane;
 import javax.swing.event.TableModelListener;
 
 import org.gnucash.api.read.GnuCashTransactionSplit;
-import org.gnucash.base.basetypes.complex.GCshCmdtyID;
 
 /**
  * A Table model that shows a given list of transaction.
@@ -39,12 +36,6 @@ public class GnuCashSimpleTransactionSplitsTableModel implements GnuCashTransact
     // How to format dates.
     public static final DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
     
-    // How to format currencies
-    private  NumberFormat currFmt = NumberFormat.getCurrencyInstance();
-    
-    // How to format currencies
-    public static final NumberFormat defaultCurrencyFormat = NumberFormat.getCurrencyInstance();
-
 	// ---------------------------------------------------------------
 
     private final List<? extends GnuCashTransactionSplit> mySplits;
@@ -141,8 +132,6 @@ public class GnuCashSimpleTransactionSplitsTableModel implements GnuCashTransact
         try {
             GnuCashTransactionSplit split = getTransactionSplit(rowIndex);
 
-            updateCurrencyFormat(split);
-
             if ( columnIndex == TableCols.DATE.ordinal() ) {
 				return split.getTransaction().getDatePostedFormatted();
             } else if ( columnIndex == TableCols.TRANSACTION.ordinal() ) {
@@ -198,23 +187,6 @@ public class GnuCashSimpleTransactionSplitsTableModel implements GnuCashTransact
             };
             new Thread(runnable).start();
             return "ERROR";
-        }
-    }
-
-    /**
-     * @param splt the split whos account to use for the currency
-     */
-    private void updateCurrencyFormat(final GnuCashTransactionSplit splt) {
-        currFmt = NumberFormat.getNumberInstance();
-        try {
-            if ( splt.getAccount().getCmdtyID().getType() == GCshCmdtyID.Type.CURRENCY ) {
-                Currency curr = Currency.getInstance(splt.getAccount().getCmdtyID().getCode());
-                currFmt = NumberFormat.getCurrencyInstance();
-                currFmt.setCurrency(curr);
-            }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 

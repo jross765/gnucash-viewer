@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
-import java.util.Currency;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,7 +15,6 @@ import javax.swing.event.TableModelListener;
 import org.gnucash.api.read.GnuCashAccount;
 import org.gnucash.api.read.GnuCashTransactionSplit;
 import org.gnucash.api.read.impl.GnuCashAccountImpl;
-import org.gnucash.base.basetypes.complex.GCshCmdtyID;
 import org.gnucash.viewer.GUIServices;
 
 /**
@@ -38,16 +36,14 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 	// How to format dates
 	public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 	
-	// How to format currencies
-	private NumberFormat currFmt = NumberFormat.getCurrencyInstance();
-
-	// How to format currencies
+	// *Not* for formatting currencies, but for computing min/max *string length* of
+	// formatted currencies:
 	public static final NumberFormat DEFAULT_CURRENCY_FORMAT = NumberFormat.getCurrencyInstance();
 
 	// ---------------------------------------------------------------
 
 	// The account the transactions of which we are showing.
-	private final GnuCashAccount account;
+	private final GnuCashAccount acct;
 
 	// The columns we display.
 	private final String[] defaultColumnNames = new String[] {
@@ -67,7 +63,7 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 	 */
 	public GnuCashSimpleAccountTransactionsTableModel() {
 		super();
-		account = null;
+		acct = null;
 	}
 
 	/**
@@ -75,7 +71,7 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 	 */
 	public GnuCashSimpleAccountTransactionsTableModel(final GnuCashAccount anAccount) {
 		super();
-		account = anAccount;
+		acct = anAccount;
 	}
 
 	// ---------------------------------------------------------------
@@ -102,11 +98,11 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 	 * @return the splits that affect this account.
 	 */
 	public List<? extends GnuCashTransactionSplit> getTransactionSplits() {
-		if ( account == null ) {
+		if ( acct == null ) {
 			return new LinkedList<GnuCashTransactionSplit>();
 		}
 		
-		return account.getTransactionSplits();
+		return acct.getTransactionSplits();
 	}
 
 	/**
@@ -141,8 +137,6 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 		try {
 			GnuCashTransactionSplit split = getTransactionSplit(rowIndex);
 
-			updateCurrencyFormat(split);
-
 			if ( columnIndex == TableCols.DATE.ordinal() ) {
 				return split.getTransaction().getDatePostedFormatted();
 			} else if ( columnIndex == TableCols.TRANSACTION.ordinal() ) {
@@ -170,10 +164,10 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 					return "";
 				}
 			} else if ( columnIndex == TableCols.BALANCE.ordinal() ) {
-				if ( account != null ) {
-					return GUIServices.formatBalance((GnuCashAccountImpl) account, account.getBalance(split));
+				if ( acct != null ) {
+					return GUIServices.formatBalance((GnuCashAccountImpl) acct, acct.getBalance(split));
 				} else {
-					return GUIServices.formatBalance((GnuCashAccountImpl) account, split.getAccount().getBalance(split));
+					return GUIServices.formatBalance((GnuCashAccountImpl) acct, split.getAccount().getBalance(split));
 				}
 			} else {
 				throw new IllegalArgumentException("illegal column index " + columnIndex);
@@ -202,24 +196,6 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 			};
 			new Thread(runnable).start();
 			return "ERROR";
-		}
-	}
-
-	/**
-	 * @param splt the split whos account to use for the currency
-	 */
-	private void updateCurrencyFormat(final GnuCashTransactionSplit splt) {
-		currFmt = NumberFormat.getNumberInstance();
-		try {
-			if ( splt.getAccount().getCmdtyID().getType() == GCshCmdtyID.Type.CURRENCY ) {
-				Currency curr = Currency.getInstance(splt.getAccount().getCmdtyID().getCode());
-				currFmt = NumberFormat.getCurrencyInstance();
-				currFmt.setCurrency(curr);
-			}
-		}
-		catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 

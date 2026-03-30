@@ -45,7 +45,8 @@ public class SingleTransactionTableModel implements GnuCashTransactionSplitsTabl
 	// How to format dates
 	public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern(Const.REDUCED_DATE_FORMAT_BOOK);
 
-	// How to format currencies
+	// *Not* for formatting currencies, but for computing min/max *string length* of
+	// formatted currencies:
 	public static final NumberFormat DEFAULT_CURRENCY_FORMAT = NumberFormat.getCurrencyInstance();
 
 	// ---------------------------------------------------------------

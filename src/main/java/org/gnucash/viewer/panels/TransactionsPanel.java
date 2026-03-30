@@ -6,8 +6,8 @@ import java.awt.FontMetrics;
 import java.awt.Toolkit;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
-import java.text.NumberFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,7 +28,9 @@ import javax.swing.table.TableModel;
 import org.gnucash.api.read.GnuCashAccount;
 import org.gnucash.api.read.GnuCashTransaction;
 import org.gnucash.api.read.GnuCashTransactionSplit;
+import org.gnucash.api.read.impl.GnuCashAccountImpl;
 import org.gnucash.viewer.Const;
+import org.gnucash.viewer.GUIServices;
 import org.gnucash.viewer.actions.TransactionSplitAction;
 import org.gnucash.viewer.models.GnuCashSimpleAccountTransactionsTableModel;
 import org.gnucash.viewer.models.GnuCashTransactionSplitsTableModel;
@@ -127,7 +129,7 @@ public class TransactionsPanel extends JPanel {
 		FontMetrics metrics = Toolkit.getDefaultToolkit().getFontMetrics(trxTab.getFont());
 		
 		int currencyWidthDefault = SwingUtilities.computeStringWidth(metrics, GnuCashSimpleAccountTransactionsTableModel.DEFAULT_CURRENCY_FORMAT.format(Const.TABLE_COL_AMOUNT_WIDTH_VAL_SMALL));
-		int currencyWidthMax     = SwingUtilities.computeStringWidth(metrics, GnuCashSimpleAccountTransactionsTableModel.DEFAULT_CURRENCY_FORMAT.format(Const.TABLE_COL_AMOUNT_WIDTH_VAL_BIG));
+		int currencyWidthMax     = SwingUtilities.computeStringWidth(metrics, GnuCashSimpleAccountTransactionsTableModel.DEFAULT_CURRENCY_FORMAT.format(Const.TABLE_COL_AMOUNT_WIDTH_VAL_BIG) + " " + Const.PSEUDO_ISIN);
 
 		getTransactionTable().getColumn(Messages_TransactionsPanel.getString("TransactionsPanel.2")).setPreferredWidth( //$NON-NLS-1$
 				SwingUtilities.computeStringWidth(metrics, GnuCashSimpleAccountTransactionsTableModel.DATE_FORMAT.format(LocalDateTime.now())) + Const.TABLE_COL_EXTRA_WIDTH);
@@ -135,7 +137,7 @@ public class TransactionsPanel extends JPanel {
 //		getTransactionTable().getColumn(Messages_TransactionsPanel.getString("TransactionsPanel.7")).setPreferredWidth(Const.PANEL_DEFAULT_WIDTH); //$NON-NLS-1$
 		getTransactionTable().getColumn(Messages_TransactionsPanel.getString("TransactionsPanel.3")).setPreferredWidth(currencyWidthDefault); //$NON-NLS-1$
 		getTransactionTable().getColumn(Messages_TransactionsPanel.getString("TransactionsPanel.4")).setPreferredWidth(currencyWidthDefault); //$NON-NLS-1$
-		if (balanceColumn != null) {
+		if ( balanceColumn != null ) {
 			balanceColumn.setPreferredWidth(currencyWidthDefault);
 		}
 
@@ -144,7 +146,7 @@ public class TransactionsPanel extends JPanel {
 		getTransactionTable().getColumn(Messages_TransactionsPanel.getString("TransactionsPanel.7")).setMinWidth(Const.TABLE_COL_MIN_WIDTH); //$NON-NLS-1$
 		getTransactionTable().getColumn(Messages_TransactionsPanel.getString("TransactionsPanel.3")).setMinWidth(Const.TABLE_COL_MIN_WIDTH); //$NON-NLS-1$
 		getTransactionTable().getColumn(Messages_TransactionsPanel.getString("TransactionsPanel.4")).setMinWidth(Const.TABLE_COL_MIN_WIDTH); //$NON-NLS-1$
-		if (balanceColumn != null) {
+		if ( balanceColumn != null ) {
 			balanceColumn.setMinWidth(Const.TABLE_COL_MIN_WIDTH);
 		}
 
@@ -155,7 +157,7 @@ public class TransactionsPanel extends JPanel {
 //		getTransactionTable().getColumn(Messages_TransactionsPanel.getString("TransactionsPanel.7")).setMaxWidth(Const.PANEL_MAX_WIDTH); //$NON-NLS-1$
 		getTransactionTable().getColumn(Messages_TransactionsPanel.getString("TransactionsPanel.3")).setMaxWidth(currencyWidthMax); //$NON-NLS-1$
 		getTransactionTable().getColumn(Messages_TransactionsPanel.getString("TransactionsPanel.4")).setMaxWidth(currencyWidthMax); //$NON-NLS-1$
-		if (balanceColumn != null) {
+		if ( balanceColumn != null ) {
 			balanceColumn.setMaxWidth(currencyWidthMax);
 		}
 		// END col widths
@@ -532,12 +534,11 @@ public class TransactionsPanel extends JPanel {
 		FixedPointNumber valueSumPlus = new FixedPointNumber(0);
 		FixedPointNumber valueSumMinus = new FixedPointNumber(0);
 		FixedPointNumber valueSumBalance = new FixedPointNumber(0);
-		NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 
 		Collection<GnuCashTransactionSplit> splits;
 		splits = getSplitsForSummary();
 		for ( GnuCashTransactionSplit splt : splits ) {
-			FixedPointNumber value = splt.getValue();
+			FixedPointNumber value = splt.getQuantity(); // <-- sic, not getValue()
 			valueSumBalance.add(value);
 			if ( value.isPositive() ) {
 				valueSumPlus.add(value);
@@ -546,21 +547,30 @@ public class TransactionsPanel extends JPanel {
 			}
 		}
 
-		if ( selectedCount < 1 ) {
-			// show a summary for all transactions displayed
-			int count = model.getRowCount();
-			getSelectionSummaryLabel().setText(count + Messages_TransactionsPanel.getString("TransactionsPanel.39") //$NON-NLS-1$
-					+ currencyFormat.format(valueSumPlus.getBigDecimal())
-					+ currencyFormat.format(valueSumMinus.getBigDecimal())
-					+ " = " + currencyFormat.format(valueSumBalance.getBigDecimal())); //$NON-NLS-1$
-		} else {
-			// show a summary only for the selected transactions
-			getSelectionSummaryLabel().setText(selectedCount + Messages_TransactionsPanel.getString("TransactionsPanel.41") //$NON-NLS-1$
-					+ currencyFormat.format(valueSumPlus.getBigDecimal())
-					+ currencyFormat.format(valueSumMinus.getBigDecimal())
-					+ " = " + currencyFormat.format(valueSumBalance.getBigDecimal())); //$NON-NLS-1$
+		GnuCashAccount acct = null;
+		if ( splits.size() > 0 ) {
+			ArrayList<GnuCashTransactionSplit> hlpList = new ArrayList<GnuCashTransactionSplit>(splits);
+			acct = hlpList.get(0).getAccount();
 		}
-
+		
+		if ( acct != null ) {
+			if ( selectedCount < 1 ) {
+				// show a summary for all transactions displayed
+				int count = model.getRowCount();
+				getSelectionSummaryLabel().setText(count + Messages_TransactionsPanel.getString("TransactionsPanel.39") //$NON-NLS-1$
+						+ GUIServices.formatBalance((GnuCashAccountImpl) acct, valueSumPlus)
+						+ ( valueSumMinus.compareTo( FixedPointNumber.ZERO ) == 0 ? " - " : " " ) 
+						+ GUIServices.formatBalance((GnuCashAccountImpl) acct, valueSumMinus)
+						+ " = " + GUIServices.formatBalance((GnuCashAccountImpl) acct, valueSumBalance)); //$NON-NLS-1$
+			} else {
+				// show a summary only for the selected transactions
+				getSelectionSummaryLabel().setText(selectedCount + Messages_TransactionsPanel.getString("TransactionsPanel.41") //$NON-NLS-1$
+						+ GUIServices.formatBalance((GnuCashAccountImpl) acct, valueSumPlus)
+						+ ( valueSumMinus.compareTo( FixedPointNumber.ZERO ) == 0 ? " - " : " " ) 
+						+ GUIServices.formatBalance((GnuCashAccountImpl) acct, valueSumMinus)
+						+ " = " + GUIServices.formatBalance((GnuCashAccountImpl) acct, valueSumBalance)); //$NON-NLS-1$
+			}
+		}
 	}
 
 	/**
