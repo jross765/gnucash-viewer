@@ -242,7 +242,7 @@ public class JGnuCashViewer extends JFrame {
 
 	/**
 	 * This method initializes
-	 * the KMyMoneyViewer.
+	 * the GnuCashViewer.
 	 */
 	public JGnuCashViewer() {
 		super();
@@ -290,7 +290,7 @@ public class JGnuCashViewer extends JFrame {
 	}
 
 	protected void kernel() throws Exception {
-		// GnuCashFileImpl kmmFile = new GnuCashFileImpl( new File( kmmFileName ) );
+		// GnuCashFileImpl gcshFile = new GnuCashFileImpl( new File( gcshFileName ) );
 
 		installNimbusLaF();
 		initializeGUI();
