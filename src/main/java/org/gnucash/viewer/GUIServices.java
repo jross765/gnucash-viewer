@@ -2,9 +2,8 @@ package org.gnucash.viewer;
 
 import java.util.Locale;
 
+import org.apache.commons.numbers.fraction.BigFraction;
 import org.gnucash.api.read.impl.GnuCashAccountImpl;
-
-import xyz.schnorxoborx.base.numbers.FixedPointNumber;
 
 public class GUIServices
 {
@@ -12,12 +11,12 @@ public class GUIServices
     // ---------------------------------------------------------------
 	// Redundant wrappers for convenience.
 	
-	public static String formatBalance(GnuCashAccountImpl acct, FixedPointNumber blnc) {
-		return GnuCashAccountImpl.formatBalance( acct, blnc );
+	public static String formatBalance(GnuCashAccountImpl acct, BigFraction blnc) {
+		return GnuCashAccountImpl.formatBalanceRat( acct, blnc );
 	}
 	
-	public static String formatBalance(GnuCashAccountImpl acct, FixedPointNumber blnc, Locale lcl) {
-		return GnuCashAccountImpl.formatBalance( acct, blnc, lcl );
+	public static String formatBalance(GnuCashAccountImpl acct, BigFraction blnc, Locale lcl) {
+		return GnuCashAccountImpl.formatBalanceRat( acct, blnc, lcl );
 	}
 	
 }

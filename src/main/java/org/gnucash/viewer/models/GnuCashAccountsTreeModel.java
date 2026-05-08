@@ -66,7 +66,7 @@ public class GnuCashAccountsTreeModel implements TreeModel {
 
         @Override
         public List<? extends GnuCashAccount> getChildAccounts() {
-        	ArrayList result = new ArrayList<GnuCashAccount>();
+        	ArrayList<GnuCashAccount> result = new ArrayList<GnuCashAccount>();
         	result.add( file.getRootAccount() );
             return result;
         }

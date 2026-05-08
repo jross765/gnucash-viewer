@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.swing.JOptionPane;
 import javax.swing.event.TableModelListener;
 
+import org.apache.commons.numbers.fraction.BigFraction;
 import org.gnucash.api.read.GnuCashAccount;
 import org.gnucash.api.read.GnuCashTransactionSplit;
 import org.gnucash.api.read.impl.GnuCashAccountImpl;
@@ -152,22 +153,22 @@ public class GnuCashSimpleAccountTransactionsTableModel implements GnuCashTransa
 				}
 				return desc;
 			} else if ( columnIndex == TableCols.PLUS.ordinal() ) {
-				if ( split.getQuantity().isPositive() ) {
+				if ( split.getQuantityRat().compareTo(BigFraction.ZERO) >= 0 ) {
 					return split.getQuantityFormatted();
 				} else {
 					return "";
 				}
 			} else if ( columnIndex == TableCols.MINUS.ordinal() ) {
-				if ( ! split.getQuantity().isPositive() ) {
+				if ( split.getQuantityRat().compareTo(BigFraction.ZERO) < 0 ) {
 					return split.getQuantityFormatted();
 				} else {
 					return "";
 				}
 			} else if ( columnIndex == TableCols.BALANCE.ordinal() ) {
 				if ( acct != null ) {
-					return GUIServices.formatBalance((GnuCashAccountImpl) acct, acct.getBalance(split));
+					return GUIServices.formatBalance((GnuCashAccountImpl) acct, acct.getBalanceRat(split));
 				} else {
-					return GUIServices.formatBalance((GnuCashAccountImpl) acct, split.getAccount().getBalance(split));
+					return GUIServices.formatBalance((GnuCashAccountImpl) acct, split.getAccount().getBalanceRat(split));
 				}
 			} else {
 				throw new IllegalArgumentException("illegal column index " + columnIndex);

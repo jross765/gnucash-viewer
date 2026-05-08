@@ -14,6 +14,7 @@ import java.util.Set;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.apache.commons.numbers.fraction.BigFraction;
 import org.gnucash.api.pricedb.ComplexPriceTable;
 import org.gnucash.api.read.GnuCashAccount;
 import org.gnucash.api.read.GnuCashFile;
@@ -23,8 +24,6 @@ import org.gnucash.base.basetypes.complex.GCshCmdtyID;
 import org.gnucash.base.basetypes.simple.GCshAcctID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import xyz.schnorxoborx.base.numbers.FixedPointNumber;
 
 /**
  * This panel displays a sum of all transaction-splits that are
@@ -160,7 +159,7 @@ public class TransactionSum extends JPanel {
 	/**
 	 * The latest value calculated by {@link #reCalculate()}.
 	 */
-	private FixedPointNumber myValue = null;
+	private BigFraction myValue = null;
 
 	/**
 	 * The count of transactions we counted n the last {@link #reCalculate()}.
@@ -221,12 +220,12 @@ public class TransactionSum extends JPanel {
 		////////////////////////////////////
 		// find all applicable transacion
 		Set<GnuCashTransactionSplit> transactions = new HashSet<GnuCashTransactionSplit>();
-		FixedPointNumber sum = new FixedPointNumber(0);
+		BigFraction sum = BigFraction.ZERO;
 		if ( srcAcctList.size() == 0 ) {
 			LOGGER.warn("reCalculate: There are no source-accounts given for this transaction-sum");
 		}
 		for ( GnuCashAccount srcAcct : srcAcctList ) {
-			FixedPointNumber addMe =
+			BigFraction addMe =
 					buildSum(srcAcct,
 							tgtAcctIDList,
 							srcAcct.getCmdtyID(),
@@ -258,12 +257,12 @@ public class TransactionSum extends JPanel {
 	/**
 	 * @param alreadyHandled all transactions we have already visited (if multiple target-accounts are involved)
 	 */
-	private FixedPointNumber buildSum(final GnuCashAccount aSourceAccount,
+	private BigFraction buildSum(final GnuCashAccount aSourceAccount,
 			final Set<GCshAcctID> aTargetAccountsIDs,
 			final GCshCmdtyID currencyID,
 			final Set<GnuCashTransactionSplit> alreadyHandled) {
 
-		FixedPointNumber sum = new FixedPointNumber();
+		BigFraction sum = BigFraction.ZERO;
 		for (Object element : aSourceAccount.getChildren()) {
 			GnuCashAccount child = (GnuCashAccount) element;
 			sum = sum.add(buildSum(child, aTargetAccountsIDs, currencyID, alreadyHandled));
@@ -287,19 +286,21 @@ public class TransactionSum extends JPanel {
 			}
 			alreadyHandled.add(split);
 
-			if (getSummationType().equals(SummationType.ONLYFROM) && split.getQuantity().isPositive()) {
+			if ( getSummationType().equals(SummationType.ONLYFROM) && 
+				 split.getQuantityRat().compareTo(BigFraction.ZERO) >= 0 ) {
 				continue;
-			} else if (getSummationType().equals(SummationType.ONLYTO) && !split.getQuantity().isPositive()) {
+			} else if ( getSummationType().equals(SummationType.ONLYTO) && 
+					    split.getQuantityRat().compareTo(BigFraction.ZERO) < 0 ) {
 				continue;
 			}
-			if (aSourceAccount.getCmdtyID().getNameSpace().equals(currencyID.getNameSpace())
-					&& aSourceAccount.getCmdtyID().equals(currencyID)) {
-
-				sum = sum.add(split.getQuantity());
+			
+			if ( aSourceAccount.getCmdtyID().getNameSpace().equals(currencyID.getNameSpace()) && 
+				 aSourceAccount.getCmdtyID().equals(currencyID) ) {
+				sum = sum.add(split.getQuantityRat());
 			} else {
-				FixedPointNumber addMe = new FixedPointNumber(split.getQuantity());
+				BigFraction addMe = split.getQuantityRat();
 				// do not convert 0
-				if (!addMe.equals(new FixedPointNumber())) {
+				if ( ! addMe.equals(BigFraction.ZERO) ) {
 					addMe = convert(aSourceAccount.getCmdtyID(), addMe, currencyID);
 				}
 				if (addMe == null) {
@@ -328,9 +329,9 @@ public class TransactionSum extends JPanel {
 		return false;
 	}
 
-	private FixedPointNumber convert(
+	private BigFraction convert(
 			final GCshCmdtyID aCurrencyIDFrom,
-			final FixedPointNumber aSum,
+			final BigFraction aSum,
 			final GCshCmdtyID aCurrencyIDTo) {
 		ComplexPriceTable currencyTable = getBooks().getCurrencyTable();
 
@@ -339,16 +340,16 @@ public class TransactionSum extends JPanel {
 					+ "to given currency because we have no currency-table!");
 			return null;
 		}
-		FixedPointNumber sum = new FixedPointNumber(aSum);
+		BigFraction sum = aSum;
 
-		sum = currencyTable.convertToBaseCurrency(sum, aCurrencyIDFrom);
+		sum = currencyTable.convertToBaseCurrencyRat(sum, aCurrencyIDFrom);
 		if ( sum == null ) {
 			LOGGER.warn("convert: Cannot transfer "
 					+ "from our currency '" + aCurrencyIDFrom.toString() + "' to the base-currency!");
 			return null;
 		}
 
-		sum = currencyTable.convertFromBaseCurrency(sum, aCurrencyIDTo);
+		sum = currencyTable.convertFromBaseCurrencyRat(sum, aCurrencyIDTo);
 		if ( sum == null ) {
 			LOGGER.warn("convert: Cannot transfer "
 					+ "from base-currenty to given currency '" + aCurrencyIDTo.toString() + "'!");
@@ -663,14 +664,14 @@ public class TransactionSum extends JPanel {
 	/**
 	 * @return the value
 	 */
-	public FixedPointNumber getValue() {
+	public BigFraction getValue() {
 		return myValue;
 	}
 
 	/**
 	 * @param aValue the value to set
 	 */
-	private void setValue(final FixedPointNumber aValue) {
+	private void setValue(final BigFraction aValue) {
 		myValue = aValue;
 	}
 

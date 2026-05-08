@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.swing.JOptionPane;
 import javax.swing.event.TableModelListener;
 
+import org.apache.commons.numbers.fraction.BigFraction;
 import org.gnucash.api.read.GnuCashTransactionSplit;
 
 /**
@@ -149,13 +150,13 @@ public class GnuCashSimpleTransactionSplitsTableModel implements GnuCashTransact
                 }
                 return desc;
             } else if ( columnIndex == TableCols.PLUS.ordinal() ) {
-            	if ( split.getQuantity().isPositive() ) {
+            	if ( split.getQuantityRat().compareTo(BigFraction.ZERO) >= 0 ) {
             		return split.getQuantityFormatted();
             	} else {
             		return "";
             	}
             } else if ( columnIndex ==  TableCols.MINUS.ordinal() ) {
-                if ( ! split.getQuantity().isPositive() ) {
+                if ( split.getQuantityRat().compareTo(BigFraction.ZERO) < 0 ) {
                 	return split.getQuantityFormatted();
                 } else {
                     return "";

@@ -11,6 +11,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.event.TableModelListener;
 
+import org.apache.commons.numbers.fraction.BigFraction;
 import org.gnucash.api.Const;
 import org.gnucash.api.read.GnuCashTransaction;
 import org.gnucash.api.read.GnuCashTransactionSplit;
@@ -177,7 +178,7 @@ public class SingleTransactionTableModel implements GnuCashTransactionSplitsTabl
 			} else if ( columnIndex == TableCols.ACCOUNT.ordinal() ) {
 				return splt.getAccount().getQualifiedName();
 			} else if ( columnIndex == TableCols.PLUS.ordinal() ) {
-				if ( splt.getValue().isPositive() ) {
+				if ( splt.getValueRat().compareTo(BigFraction.ZERO) >= 0 ) {
 					if ( splt.getAccount().getCmdtyID().getType() == getTransaction().getCmdtyID().getType() && 
 						 splt.getAccount().getCmdtyID().toString().equals(getTransaction().getCmdtyID().toString()) ) {
 						return splt.getValueFormatted();
@@ -187,7 +188,7 @@ public class SingleTransactionTableModel implements GnuCashTransactionSplitsTabl
 					return "";
 				}
 			} else if ( columnIndex == TableCols.MINUS.ordinal() ) {
-				if ( ! splt.getValue().isPositive() ) {
+				if ( splt.getValueRat().compareTo(BigFraction.ZERO) < 0 ) {
 					if ( splt.getAccount().getCmdtyID().getType() == getTransaction().getCmdtyID().getType() && 
 						 splt.getAccount().getCmdtyID().toString().equals(getTransaction().getCmdtyID().toString()) ) {
 						return splt.getValueFormatted();
