@@ -34,10 +34,6 @@ Cf. document "[Major Changes](https://github.com/jross765/JGnuCashLibNTools/gnuc
 ## Planned
 It should go without saying, but the following points are of course subject to change and by no means a promise that they will actually be implemented soon:
 
-* Marking / rendering transaction descriptions by more general / flexible rules; extracting stuff like the "TODO" word into config files.
-
-* Re-iterating tables and models -- I guess it would be better to handle transactions and transaction splits in completely separate classes (both in package `models` and `panels`) rather than in one class.
-
 * Introducing detailed-view panels for each supported entity.
 
 * Possibly (!) supporting additional entities:
