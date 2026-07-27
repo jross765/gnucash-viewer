@@ -1,5 +1,12 @@
 # Major Changes 
 
+## V. 1.2 &rarr; 1.3
+* I18N: Added French language.
+
+* Generalized rendering of unbalanced and/or tagged transactions.
+
+  This is based on transaction (split) comments.
+
 ## V. 1.1 &rarr; 1.2
 * Viewer can now be started with command line options:
     * With account ID: Will open new window with according account immediatly after start.
